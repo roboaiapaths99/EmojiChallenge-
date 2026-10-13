@@ -41,8 +41,6 @@ Thumbs.db
 # Uploaded photos & zip bundles in runtime storage (keep directory structure with .gitkeep)
 backend/uploads/*
 !backend/uploads/.gitkeep
-services/api/uploads/*
-!services/api/uploads/.gitkeep
 backend/data/uploads/*
 !backend/data/uploads/.gitkeep
 *.zip

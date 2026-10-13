@@ -22,7 +22,8 @@ COPY app/ ./app/
 RUN mkdir -p uploads data
 
 # Expose default port
-EXPOSE 3001
+EXPOSE 8084
 
 # Run Uvicorn supporting dynamically assigned $PORT
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3001}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8084}"]
+

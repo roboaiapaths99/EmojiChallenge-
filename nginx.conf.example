@@ -1,0 +1,81 @@
+# ==============================================================================
+# Nginx Configuration for:
+# - Frontend: emojichallenge.technula.com
+# - Backend API: api.emojichallenge.technula.com (port 8084)
+# ==============================================================================
+# Copy to: /etc/nginx/sites-available/emojichallenge.technula.com
+# Enable with: ln -s /etc/nginx/sites-available/emojichallenge.technula.com /etc/nginx/sites-enabled/
+# Test with: nginx -t && systemctl reload nginx
+# Obtain SSL: certbot --nginx -d emojichallenge.technula.com -d api.emojichallenge.technula.com
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Backend API (api.emojichallenge.technula.com -> Port 8084)
+# ------------------------------------------------------------------------------
+server {
+    server_name api.emojichallenge.technula.com;
+
+    # Allow up to 50MB for high-res photo uploads & souvenir bundles
+    client_max_body_size 50M;
+
+    # Gzip compression for API responses
+    gzip on;
+    gzip_types application/json text/html text/plain;
+
+    location / {
+        proxy_pass http://127.0.0.1:8084;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+        proxy_connect_timeout 60s;
+    }
+
+    listen 80;
+}
+
+# ------------------------------------------------------------------------------
+# 2. Frontend Kiosk App (emojichallenge.technula.com)
+# ------------------------------------------------------------------------------
+server {
+    server_name emojichallenge.technula.com;
+
+    root /var/www/emojichallenge/apps/event-app/dist;
+    index index.html;
+
+    # Allow up to 50MB
+    client_max_body_size 50M;
+
+    # Gzip compression for static files
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    # Mediapipe WASM & Task binary models caching
+    location ~* \.(wasm|task)$ {
+        types {
+            application/wasm wasm;
+            application/octet-stream task;
+        }
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Static assets caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA Router fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    listen 80;
+}

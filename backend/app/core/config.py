@@ -8,10 +8,12 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_NAME: str = "emoji-face-challenge-api"
     HOST: str = "0.0.0.0"
-    PORT: int = 3001
+    PORT: int = 8084
 
     # CORS
     CORS_ORIGINS: Union[str, List[str]] = [
+        "https://emojichallenge.technula.com",
+        "https://api.emojichallenge.technula.com",
         "http://localhost:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5173",

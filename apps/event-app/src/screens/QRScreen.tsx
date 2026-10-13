@@ -26,13 +26,13 @@ export const QRScreen: React.FC<QRScreenProps> = ({
   const [secondsRemaining, setSecondsRemaining] = useState<number>(45);
   const [copied, setCopied] = useState<boolean>(false);
 
-  // Use the current origin or backend generated claim URL for seamless remote testing
+  // Use the backend generated claim URL or fallback to origin
   const effectiveClaimUrl = (() => {
-    const token = uploadInfo?.token || "preview";
-    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-      return `${window.location.origin}/claim/${token}`;
+    if (uploadInfo?.claimUrl) {
+      return uploadInfo.claimUrl;
     }
-    return uploadInfo?.claimUrl || `${window.location.origin}/claim/${token}`;
+    const token = uploadInfo?.token || "preview";
+    return `${window.location.origin}/claim/${token}`;
   })();
 
   useEffect(() => {

@@ -13,7 +13,7 @@ export interface PlayerAuthData {
   verified?: boolean;
 }
 
-const API_BASE = "";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
 
 
 /**

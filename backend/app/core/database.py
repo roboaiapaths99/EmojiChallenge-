@@ -147,10 +147,15 @@ class FileDatabase:
 
     async def save(self):
         try:
-            with open(self.file_path, "w", encoding="utf-8") as f:
+            self.file_path.parent.mkdir(parents=True, exist_ok=True)
+            temp_file = self.file_path.with_suffix(".tmp")
+            with open(temp_file, "w", encoding="utf-8") as f:
                 json.dump(self.data, f, indent=2, default=str)
+            temp_file.replace(self.file_path)
         except Exception as e:
             logger.error(f"Error saving local database: {e}")
+
+
 
     def __getitem__(self, name: str) -> FileCollection:
         return FileCollection(name, self)
@@ -167,10 +172,20 @@ class AwaitableMotorCursor:
         return _resolve().__await__()
 
     async def to_list(self, length: Optional[int] = 2000) -> List[Dict[str, Any]]:
-        return await self._cursor.to_list(length=length)
+        docs = await self._cursor.to_list(length=length)
+        for doc in docs:
+            if isinstance(doc, dict) and "_id" in doc:
+                doc["_id"] = str(doc["_id"])
+        return docs
 
     def __aiter__(self):
-        return self._cursor.__aiter__()
+        return self
+
+    async def __anext__(self):
+        doc = await self._cursor.__anext__()
+        if isinstance(doc, dict) and "_id" in doc:
+            doc["_id"] = str(doc["_id"])
+        return doc
 
     def sort(self, *args, **kwargs):
         self._cursor = self._cursor.sort(*args, **kwargs)
@@ -204,7 +219,10 @@ class MotorCollectionWrapper:
         return AwaitableMotorCursor(cursor)
 
     async def find_one(self, filter: Dict[str, Any], *args, **kwargs):
-        return await self._collection.find_one(filter, *args, **kwargs)
+        doc = await self._collection.find_one(filter, *args, **kwargs)
+        if isinstance(doc, dict) and "_id" in doc:
+            doc["_id"] = str(doc["_id"])
+        return doc
 
     async def insert_one(self, document: Dict[str, Any], *args, **kwargs):
         return await self._collection.insert_one(document, *args, **kwargs)

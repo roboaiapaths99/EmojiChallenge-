@@ -138,14 +138,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
     setTimeout(() => setActionMessage(null), 4000);
   };
 
+  const [adminKey, setAdminKey] = useState<string>(() => {
+    return (
+      localStorage.getItem("emoji_admin_secret") ||
+      (import.meta.env.VITE_ADMIN_SECRET ?? "") ||
+      "dev_admin_secret_key"
+    );
+  });
+  const [showKeyPrompt, setShowKeyPrompt] = useState<boolean>(false);
+  const [keyInput, setKeyInput] = useState<string>("");
+  const [authError, setAuthError] = useState<boolean>(false);
+
+  const getHeaders = () => ({ "x-admin-secret": adminKey.trim() });
+
   const fetchAdminData = async (silent: boolean = false) => {
     if (!silent) setIsLoading(true);
-    const headers = { "x-admin-secret": "dev_admin_secret_key" };
+    const headers = getHeaders();
 
     try {
       // 1. Fetch Stats
       const statsRes = await fetch(`${API_BASE}/api/admin/stats`, { headers });
+      if (statsRes.status === 401) {
+        setAuthError(true);
+        if (!silent) showToast("🔒 Admin secret key required or invalid.");
+        return;
+      }
       if (statsRes.ok) {
+        setAuthError(false);
         const data = await statsRes.json();
         setStats(data.stats);
       }
@@ -184,14 +203,32 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
     }
   };
 
+  const handleSaveKey = (newKey: string) => {
+    const clean = newKey.trim();
+    if (!clean) return;
+    setAdminKey(clean);
+    localStorage.setItem("emoji_admin_secret", clean);
+    setShowKeyPrompt(false);
+    setAuthError(false);
+    showToast("🔑 Admin Secret Key saved!");
+    setTimeout(() => {
+      fetchAdminData(false);
+    }, 100);
+  };
+
   const handleClearDemoData = async () => {
     if (!window.confirm("Delete all 32 sample demo leads? Real attendee leads will be kept.")) return;
     setIsLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/admin/clear-demo`, {
         method: "POST",
-        headers: { "x-admin-secret": "dev_admin_secret_key" },
+        headers: getHeaders(),
       });
+      if (res.status === 401) {
+        setAuthError(true);
+        showToast("🔒 Unauthorized: Incorrect admin secret key.");
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         showToast(`🧹 ${data.message}`);
@@ -211,8 +248,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
     try {
       const res = await fetch(`${API_BASE}/api/admin/seed-real-data`, {
         method: "POST",
-        headers: { "x-admin-secret": "dev_admin_secret_key" },
+        headers: getHeaders(),
       });
+      if (res.status === 401) {
+        setAuthError(true);
+        showToast("🔒 Unauthorized: Incorrect admin secret key.");
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         showToast(`✨ Successfully populated ${data.seededLeads} authentic event leads and sessions!`);
@@ -328,6 +370,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
               <div className="admin-pulse-dot" />
               <span>LIVE SYNC</span>
             </div>
+            <button
+              className="admin-action-refresh-btn"
+              onClick={() => {
+                setKeyInput(adminKey);
+                setShowKeyPrompt(true);
+              }}
+              title="Click to view or change your Admin Secret Key"
+              style={{
+                borderColor: authError ? "#ef4444" : "rgba(168, 85, 247, 0.4)",
+                background: authError ? "rgba(239, 68, 68, 0.2)" : "rgba(168, 85, 247, 0.15)",
+                color: authError ? "#f87171" : "#c084fc",
+                fontWeight: 700,
+              }}
+            >
+              🔑 {authError ? "SET SECRET KEY" : "SECRET KEY"}
+            </button>
             <button className="admin-action-refresh-btn" onClick={() => fetchAdminData(false)} title="Force refresh leads from server">
               🔄 REFRESH
             </button>
@@ -342,6 +400,67 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
             </button>
           </div>
         </header>
+
+        {/* Secret Key Modal / Banner */}
+        {(showKeyPrompt || authError) && (
+          <div
+            style={{
+              padding: "16px 24px",
+              background: "rgba(15, 23, 42, 0.95)",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ fontWeight: 700, color: authError ? "#f87171" : "#e2e8f0", fontSize: "14px" }}>
+                🔑 Admin Dashboard Secret Key
+              </span>
+              <span style={{ color: "#94a3b8", fontSize: "12px" }}>
+                Matches <code>ADMIN_SECRET</code> in your server <code>.env</code> file (Default: <code>dev_admin_secret_key</code>)
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", flex: 1, maxWidth: "460px" }}>
+              <input
+                type="text"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+                placeholder="Enter ADMIN_SECRET..."
+                style={{
+                  flex: 1,
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#ffffff",
+                  fontSize: "13px",
+                  fontFamily: "monospace",
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveKey(keyInput);
+                }}
+              />
+              <button
+                className="admin-action-pill-btn"
+                onClick={() => handleSaveKey(keyInput)}
+                style={{ background: "#6366f1", borderColor: "#818cf8" }}
+              >
+                SAVE & CONNECT
+              </button>
+              {showKeyPrompt && !authError && (
+                <button
+                  className="admin-action-refresh-btn"
+                  onClick={() => setShowKeyPrompt(false)}
+                >
+                  CANCEL
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {actionMessage && <div className="admin-toast-banner">{actionMessage}</div>}
 

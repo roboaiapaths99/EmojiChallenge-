@@ -75,6 +75,20 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled server exception on %s %s: %s", request.method, request.url.path, exc, exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "error": "Internal server error occurred safely. Service remains online.",
+            "detail": str(exc) if settings.APP_ENV != "production" else "Safe server handling"
+        }
+    )
+
+
+
 @app.get("/")
 async def root():
     return {

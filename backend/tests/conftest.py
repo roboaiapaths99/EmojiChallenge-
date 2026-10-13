@@ -5,7 +5,7 @@ from app.main import app
 from app.core.database import connect_database, close_database
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="function", autouse=True)
 async def init_test_db():
     await connect_database()
     yield

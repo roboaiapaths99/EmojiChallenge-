@@ -5,6 +5,7 @@ import "./AttractScreen.css";
 interface AttractScreenProps {
   onStart: () => void;
   onOpenSettings: () => void;
+  onOpenAdmin?: () => void;
 }
 
 const HERO_EMOJIS = ["😀", "🤩", "😜", "😮", "😎", "😆", "🥳", "🔥"];
@@ -12,6 +13,7 @@ const HERO_EMOJIS = ["😀", "🤩", "😜", "😮", "😎", "😆", "🥳", "�
 export const AttractScreen: React.FC<AttractScreenProps> = ({
   onStart,
   onOpenSettings,
+  onOpenAdmin,
 }) => {
   const [emojiIndex, setEmojiIndex] = useState(0);
 
@@ -43,6 +45,20 @@ export const AttractScreen: React.FC<AttractScreenProps> = ({
         >
           ⚙️ Setup
         </button>
+        {onOpenAdmin && (
+          <button
+            className="attract-operator-btn"
+            onClick={onOpenAdmin}
+            title="Open Admin Dashboard (Shortcut: Ctrl+Shift+A)"
+            style={{
+              borderColor: "rgba(99, 102, 241, 0.4)",
+              background: "rgba(99, 102, 241, 0.15)",
+              color: "#818cf8",
+            }}
+          >
+            🛡️ Admin
+          </button>
+        )}
       </div>
 
       <main className="attract-content">

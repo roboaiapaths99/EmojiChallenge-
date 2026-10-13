@@ -14,11 +14,16 @@ class StorageService:
 
     async def save_photo(self, filename: str, content: bytes) -> str:
         """Save photo content to storage provider and return storage key."""
-        target_path = self.local_dir / filename
-        with open(target_path, "wb") as f:
-            f.write(content)
-        logger.info("Saved photo '%s' (%d bytes) to local storage", filename, len(content))
-        return filename
+        try:
+            self.local_dir.mkdir(parents=True, exist_ok=True)
+            target_path = self.local_dir / filename
+            with open(target_path, "wb") as f:
+                f.write(content)
+            logger.info("Saved photo '%s' (%d bytes) to local storage", filename, len(content))
+            return filename
+        except Exception as e:
+            logger.error("Failed to write photo '%s': %s", filename, e)
+            raise e
 
     def get_photo_path(self, storage_key: str) -> Optional[Path]:
         """Return Path to local photo file if it exists."""

@@ -157,6 +157,7 @@ export const App: React.FC = () => {
         <AttractScreen
           onStart={() => setGameState("MODE_SELECT")}
           onOpenSettings={() => setGameState("SETUP")}
+          onOpenAdmin={() => setShowAdmin(true)}
         />
       )}
 

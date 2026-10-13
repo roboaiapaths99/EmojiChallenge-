@@ -1,0 +1,187 @@
+.operator-diagnostics-drawer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 440px;
+  max-width: calc(100vw - 48px);
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diagnostics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--surface-alt);
+  border-bottom: 2px solid var(--line);
+}
+
+.diagnostics-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diagnostics-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--p1);
+  text-transform: uppercase;
+}
+
+.diagnostics-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.diagnostics-close-btn {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-2);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.diagnostics-close-btn:hover {
+  background: var(--line);
+}
+
+.diagnostics-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-ok {
+  background: var(--good-soft);
+  color: var(--good);
+  border: 1px solid var(--good);
+}
+
+.status-err {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border: 1px solid var(--bad);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.diagnostics-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.diagnostics-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.diagnostics-select {
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.diagnostics-select:focus {
+  border-color: var(--p1);
+}
+
+.diagnostics-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metric-card {
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.id-metric {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.metric-sub {
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.diagnostics-error-box {
+  padding: 10px 12px;
+  background: var(--bad-soft);
+  border: 1px solid var(--bad);
+  border-radius: var(--radius-sm);
+  color: var(--bad);
+  font-size: 12px;
+}
+
+.diagnostics-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.diag-action-btn {
+  padding: 8px 14px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+}
+
+.diag-action-btn:hover {
+  background: #333333;
+}

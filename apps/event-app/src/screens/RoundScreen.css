@@ -1,0 +1,5 @@
+/* Round screen layout & components now live in ../game/GameArena.css (shared
+   with Speed and Hunt screens). Only round-specific tweaks belong here. */
+.round-page .ga-target-card {
+  min-height: 0;
+}

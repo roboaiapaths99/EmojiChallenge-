@@ -1,0 +1,37 @@
+/* Light Theme & Design System Tokens (PRD §17.1 & Approved Plan Part A) */
+:root {
+  --bg: #FAFAF7;          /* Page background: warm, clean off-white */
+  --surface: #FFFFFF;     /* Solid surface cards */
+  --surface-alt: #F4F4EE; /* Subtle contrast card background */
+  --ink: #111111;         /* Primary text */
+  --ink-2: #555555;       /* Secondary text */
+  --ink-muted: #888882;   /* Muted captions */
+  --line: #E4E4DE;        /* Solid crisp borders */
+  --line-strong: #111111; /* High contrast structural borders */
+
+  --p1: #1F6FEB;          /* Player 1: Bold Event Blue */
+  --p1-soft: #E7F0FF;     /* Player 1: Soft backdrop */
+  --p2: #E0337E;          /* Player 2: Bold Event Pink */
+  --p2-soft: #FDE8F1;     /* Player 2: Soft backdrop */
+
+  --accent: #FFC83D;      /* Action Yellow: START, key CTA */
+  --accent-ink: #111111;  /* High contrast text on accent */
+
+  --good: #1E9E5A;        /* Success green */
+  --good-soft: #E6F6ED;
+  --warn: #E08A00;        /* Warning amber */
+  --warn-soft: #FFF5E5;
+  --bad: #D93025;         /* Alert red */
+  --bad-soft: #FCE8E6;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}

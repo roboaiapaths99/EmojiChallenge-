@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds & bundles
+dist/
+build/
+out/
+.next/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs & Temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Uploaded photos & zip bundles in runtime storage (keep directory structure with .gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+services/api/uploads/*
+!services/api/uploads/.gitkeep
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+*.zip
+*.tar.gz
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Executables & binary CLI tools
+*.exe
+tools/

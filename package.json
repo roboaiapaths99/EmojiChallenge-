@@ -1,0 +1,19 @@
+{
+  "name": "emoji-face-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace=apps/event-app run dev",
+    "dev:backend": "python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 3001 --app-dir backend",
+    "dev:api": "npm --workspace=services/api run dev",
+    "build:event": "npm --workspace=apps/event-app run build",
+    "build:all": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:api:py": "pytest backend/tests -v"
+  }
+}

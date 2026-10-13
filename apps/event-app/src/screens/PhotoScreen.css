@@ -1,0 +1,130 @@
+.photo-screen-page {
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-flash-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #ffffff;
+  z-index: 9999;
+  animation: flashFade 0.4s ease-out forwards;
+}
+
+@keyframes flashFade {
+  0% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+.photo-header {
+  height: 80px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 3px solid var(--line-strong);
+  background-color: var(--surface);
+  flex-shrink: 0;
+}
+
+.photo-header h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.photo-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 40px;
+}
+
+.photo-viewport-box {
+  width: 100%;
+  max-width: 1100px;
+  height: 100%;
+  max-height: 650px;
+  border: 4px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+}
+
+.photo-live-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* mirror preview */
+  z-index: 1;
+}
+
+.photo-countdown-badge {
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--surface);
+  border: 4px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: 32px 64px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: popDigit 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popDigit {
+  0% { transform: scale(0.6); }
+  100% { transform: scale(1); }
+}
+
+.countdown-digit {
+  font-size: 120px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 4px 0 var(--line-strong);
+}
+
+.countdown-pose-msg {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-top: 12px;
+  letter-spacing: 0.05em;
+}
+
+.composing-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--surface);
+  border: 3px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.photo-footer {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-2);
+}

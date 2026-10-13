@@ -1,0 +1,80 @@
+/* Speed round — shared layout lives in ../game/GameArena.css */
+
+.speed-sequence {
+  display: flex;
+  gap: 12px;
+}
+
+.speed-seq-item {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0.45;
+  transition: all 0.25s ease-out;
+}
+
+.speed-seq-item.is-active {
+  border-color: var(--line-strong);
+  background-color: var(--accent);
+  opacity: 1;
+  transform: scale(1.15);
+  box-shadow: 0 4px 0 var(--line-strong);
+}
+
+.speed-seq-item.is-done {
+  border-color: var(--good);
+  background-color: var(--good-soft);
+  opacity: 1;
+}
+
+.speed-seq-check {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--good);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.speed-emoji-enter {
+  animation: speed-enter 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3), ga-float 2.6s ease-in-out 0.4s infinite;
+}
+
+@keyframes speed-enter {
+  from { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+  to { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.speed-target-timer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.speed-target-secs {
+  font-size: 22px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  min-width: 64px;
+  text-align: left;
+}
+
+.speed-target-secs.is-critical {
+  color: var(--bad);
+}

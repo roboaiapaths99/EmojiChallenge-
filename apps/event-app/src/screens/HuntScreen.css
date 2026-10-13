@@ -1,0 +1,122 @@
+/* Hunt round — shared layout lives in ../game/GameArena.css */
+
+.hunt-summary {
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.hunt-found-big {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hunt-found-num {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--good);
+  font-variant-numeric: tabular-nums;
+}
+
+.hunt-found-of {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--ink-2);
+}
+
+.hunt-player-scores {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.hunt-catalog {
+  flex: 1;
+  min-height: 0;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hunt-catalog-title {
+  margin-bottom: 12px;
+}
+
+.hunt-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+  align-content: start;
+  padding: 4px;
+}
+
+.hunt-tile {
+  position: relative;
+  background-color: var(--surface-alt);
+  border: 3px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s ease-out;
+}
+
+.hunt-tile-emoji {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.hunt-tile-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-2);
+  line-height: 1.2;
+}
+
+.hunt-tile.is-holding {
+  border-color: var(--accent);
+  background-color: #fff6dc;
+  transform: scale(1.06);
+  box-shadow: 0 0 0 4px rgba(255, 200, 61, 0.35);
+}
+
+.hunt-tile.is-found {
+  border-color: var(--good);
+  background-color: var(--good-soft);
+  animation: hunt-unlock 0.45s ease-out;
+}
+
+.hunt-tile-check {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--good);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+@keyframes hunt-unlock {
+  0% { transform: scale(0.85); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}

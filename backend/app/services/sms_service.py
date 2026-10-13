@@ -76,12 +76,26 @@ class SMSService:
         otp = f"{random.randint(100000, 999999)}"
         expires_at = time.time() + 300  # 5 minutes validity
 
-        self._otp_store[clean_mobile] = {
+        record = {
             "otp": otp,
             "expires_at": expires_at,
             "attempts": 0,
             "player_label": player_label,
+            "mobile": clean_mobile,
         }
+        self._otp_store[clean_mobile] = record
+
+        # Persist to shared database across all Uvicorn worker processes
+        try:
+            from app.core.database import get_db
+            db = get_db()
+            await db["otp_verifications"].update_one(
+                {"mobile": clean_mobile},
+                {"$set": record},
+                upsert=True
+            )
+        except Exception as db_err:
+            logger.warning("Could not persist OTP in database: %s", db_err)
 
         # DLT-approved template text for template ID 1707177071739047190
         message = f"Welcome to AGPK Academy login. Your verification code is {otp}. This OTP will expire in 5 minutes"
@@ -94,30 +108,60 @@ class SMSService:
         else:
             return False, f"SMS Gateway Error: {msg}", None
 
-    def verify_otp(self, mobile: str, otp_code: str) -> Tuple[bool, str]:
+    async def verify_otp(self, mobile: str, otp_code: str) -> Tuple[bool, str]:
         """
-        Verifies entered OTP against cached store.
+        Verifies entered OTP against cached store and shared database.
         """
         clean_mobile = self._normalize_mobile(mobile)
-        record = self._otp_store.get(clean_mobile)
+        # Check shared database first for authoritative multi-worker state
+        record = None
+        try:
+            from app.core.database import get_db
+            db = get_db()
+            record = await db["otp_verifications"].find_one({"mobile": clean_mobile})
+        except Exception as db_err:
+            logger.warning("Could not query DB for OTP: %s", db_err)
+
+        if not record:
+            record = self._otp_store.get(clean_mobile)
 
         if not record:
             return False, "No OTP requested for this mobile number. Please click Send OTP."
 
-        if time.time() > record["expires_at"]:
-            del self._otp_store[clean_mobile]
+        if time.time() > float(record.get("expires_at", 0)):
+            self._otp_store.pop(clean_mobile, None)
+            try:
+                from app.core.database import get_db
+                db = get_db()
+                await db["otp_verifications"].delete_one({"mobile": clean_mobile})
+            except Exception:
+                pass
             return False, "OTP has expired. Please request a new one."
 
-        record["attempts"] += 1
-        if record["attempts"] > 5:
-            del self._otp_store[clean_mobile]
+        attempts = int(record.get("attempts", 0)) + 1
+        record["attempts"] = attempts
+        if attempts > 5:
+            self._otp_store.pop(clean_mobile, None)
+            try:
+                from app.core.database import get_db
+                db = get_db()
+                await db["otp_verifications"].delete_one({"mobile": clean_mobile})
+            except Exception:
+                pass
             return False, "Too many incorrect attempts. Please request a new OTP."
 
-        if str(otp_code).strip() != record["otp"]:
+        if str(otp_code).strip() != str(record.get("otp", "")).strip():
             return False, "Incorrect OTP code. Please check and try again."
 
         # OTP is verified! Clear it so it cannot be reused
-        del self._otp_store[clean_mobile]
+        self._otp_store.pop(clean_mobile, None)
+        try:
+            from app.core.database import get_db
+            db = get_db()
+            await db["otp_verifications"].delete_one({"mobile": clean_mobile})
+        except Exception:
+            pass
+
         return True, "Mobile verified successfully!"
 
 sms_service = SMSService()

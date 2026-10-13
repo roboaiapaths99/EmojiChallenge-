@@ -82,6 +82,19 @@ class FileCollection:
 
         return type("UpdateResult", (), {"matched_count": 0, "modified_count": 0})()
 
+    async def delete_one(self, filter_dict: Dict[str, Any]) -> Any:
+        for i, item in enumerate(self.items):
+            match = True
+            for k, v in filter_dict.items():
+                if item.get(k) != v:
+                    match = False
+                    break
+            if match:
+                self.items.pop(i)
+                await self.db_parent.save()
+                return type("DeleteResult", (), {"deleted_count": 1})()
+        return type("DeleteResult", (), {"deleted_count": 0})()
+
     async def count_documents(self, filter_dict: Optional[Dict[str, Any]] = None) -> int:
         filter_dict = filter_dict or {}
         count = 0

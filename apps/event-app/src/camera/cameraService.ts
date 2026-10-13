@@ -204,6 +204,11 @@ export class CameraService {
       }
     }
 
+    if (deviceId) {
+      console.warn("Retrying camera initialization with default device after ID failed...");
+      return this.startCamera(undefined);
+    }
+
     // PRD §6.4 step 5: show operator error if no usable camera stream exists
     throw this.mapError(lastError, "NO_USABLE_STREAM");
   }

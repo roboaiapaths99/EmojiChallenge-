@@ -8,6 +8,8 @@ interface PlayerSetupScreenProps {
   mode: GameMode;
   faceTracking: UseFaceTrackingReturn;
   stream?: MediaStream | null;
+  onRequestCamera?: () => void;
+  cameraError?: any;
   onReady: () => void;
   onCancel: () => void;
 }
@@ -16,6 +18,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   mode,
   faceTracking,
   stream,
+  onRequestCamera,
+  cameraError,
   onReady,
   onCancel,
 }) => {
@@ -83,6 +87,65 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
             muted
             autoPlay
           />
+
+          {/* Camera Permission Prompt Overlay */}
+          {!stream && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(10, 10, 18, 0.92)",
+                zIndex: 25,
+                padding: "24px",
+                textAlign: "center",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              <div style={{ fontSize: "3.5rem", marginBottom: "16px" }}>📷</div>
+              <h3 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", marginBottom: "8px" }}>
+                Camera Access Needed
+              </h3>
+              <p
+                style={{
+                  color: "#9ca3af",
+                  maxWidth: "420px",
+                  fontSize: "0.95rem",
+                  marginBottom: "24px",
+                  lineHeight: 1.5,
+                }}
+              >
+                {cameraError?.message ||
+                  "Please allow camera access in your browser so the AI can track your emoji expressions in real-time."}
+              </p>
+              {onRequestCamera && (
+                <button
+                  type="button"
+                  onClick={onRequestCamera}
+                  style={{
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "#fff",
+                    border: "none",
+                    padding: "14px 28px",
+                    borderRadius: "12px",
+                    fontWeight: 800,
+                    fontSize: "1rem",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 15px rgba(99, 102, 241, 0.4)",
+                    letterSpacing: "0.05em",
+                    transition: "transform 0.15s ease",
+                  }}
+                  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
+                  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                >
+                  ALLOW CAMERA ACCESS
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Face Overlay */}
           {isReady && (

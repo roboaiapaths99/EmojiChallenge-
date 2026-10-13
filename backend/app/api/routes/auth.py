@@ -38,7 +38,7 @@ async def verify_otp(req: VerifyOtpRequest):
     """
     Verify OTP entered by player and record lead in Admin attendee database.
     """
-    success, message = sms_service.verify_otp(
+    success, message = await sms_service.verify_otp(
         mobile=req.mobile,
         otp_code=req.otp
     )

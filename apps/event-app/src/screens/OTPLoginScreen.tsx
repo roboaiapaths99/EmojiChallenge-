@@ -210,7 +210,8 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
     }));
 
     try {
-      const res = await verifyOtp(state.mobile, otpCode, state.name);
+      const cleanMobile = state.mobile.replace(/\D/g, "").slice(-10);
+      const res = await verifyOtp(cleanMobile, otpCode, state.name);
       if (res.success) {
         setState((prev) => ({
           ...prev,

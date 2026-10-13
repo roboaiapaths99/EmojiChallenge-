@@ -156,25 +156,24 @@ export function useCamera(): UseCameraReturn {
     setIsLoading(true);
     setError(null);
     try {
-      await cameraService.requestInitialPermission();
+      const savedId = localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_ID) || undefined;
+      await startSelectedCamera(savedId);
       setIsPermissionGranted(true);
-
-      const deviceList = await refreshDeviceList();
-      const savedId = localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_ID);
-      const targetId =
-        savedId && deviceList.some((d) => d.deviceId === savedId)
-          ? savedId
-          : deviceList[0]?.deviceId || undefined;
-
-      await startSelectedCamera(targetId);
+      await refreshDeviceList();
       return true;
     } catch (err: unknown) {
+      console.warn("Camera request permission error:", err);
       setError(err as CameraErrorDetails);
       return false;
     } finally {
       setIsLoading(false);
     }
   }, [refreshDeviceList, startSelectedCamera]);
+
+  // Attempt camera initialization on mount
+  useEffect(() => {
+    requestPermission().catch(() => {});
+  }, [requestPermission]);
 
   const selectDevice = useCallback(
     async (newDeviceId: string) => {

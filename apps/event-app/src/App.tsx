@@ -155,7 +155,12 @@ export const App: React.FC = () => {
       {/* 2. ATTRACT */}
       {gameState === "ATTRACT" && (
         <AttractScreen
-          onStart={() => setGameState("MODE_SELECT")}
+          onStart={() => {
+            if (!camera.stream) {
+              camera.requestPermission();
+            }
+            setGameState("MODE_SELECT");
+          }}
           onOpenSettings={() => setGameState("SETUP")}
           onOpenAdmin={() => setShowAdmin(true)}
         />
@@ -193,6 +198,8 @@ export const App: React.FC = () => {
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
+          onRequestCamera={camera.requestPermission}
+          cameraError={camera.error}
           onReady={() => setGameState("RULES")}
           onCancel={() => setGameState("OTP_LOGIN")}
         />
@@ -379,49 +386,51 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Floating Operator Quick Controls (Top-Right so they never obstruct bottom action CTAs) */}
-      <div
-        style={{
-          position: "fixed",
-          top: "14px",
-          right: "16px",
-          zIndex: 9999,
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          pointerEvents: "auto",
-        }}
-      >
-        <FullscreenButton
-          variant="floating"
+      {/* Floating Operator Quick Controls (Visible only on ATTRACT screen to prevent obscuring gameplay navigation or buttons) */}
+      {gameState === "ATTRACT" && (
+        <div
           style={{
-            position: "static",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
-          }}
-        />
-        <button
-          type="button"
-          onClick={() => setShowAdmin(true)}
-          style={{
-            background: "#1f2937",
-            color: "#f3f4f6",
-            border: "2px solid #374151",
-            padding: "8px 16px",
-            borderRadius: "9999px",
-            fontWeight: 800,
-            fontSize: "0.8rem",
-            cursor: "pointer",
+            position: "fixed",
+            top: "14px",
+            right: "16px",
+            zIndex: 9999,
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
-            transition: "all 0.15s ease",
+            gap: "10px",
+            pointerEvents: "auto",
           }}
-          title="Open Operator Admin Dashboard (Ctrl+Shift+A)"
         >
-          ⚙️ ADMIN PANEL
-        </button>
-      </div>
+          <FullscreenButton
+            variant="floating"
+            style={{
+              position: "static",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowAdmin(true)}
+            style={{
+              background: "#1f2937",
+              color: "#f3f4f6",
+              border: "2px solid #374151",
+              padding: "8px 16px",
+              borderRadius: "9999px",
+              fontWeight: 800,
+              fontSize: "0.8rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+              transition: "all 0.15s ease",
+            }}
+            title="Open Operator Admin Dashboard (Ctrl+Shift+A)"
+          >
+            ⚙️ ADMIN PANEL
+          </button>
+        </div>
+      )}
 
       {/* Persistent global video element for continuous camera and face tracking */}
       <video

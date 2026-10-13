@@ -71,6 +71,7 @@ class Settings(BaseSettings):
 
     # Root Directory
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    ROOT_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
 
     @property
     def UPLOADS_PATH(self) -> Path:
@@ -85,11 +86,18 @@ class Settings(BaseSettings):
         return path
 
     model_config = SettingsConfigDict(
-        env_file=[".env", "backend/.env"],
+        env_file=[
+            str(Path(__file__).resolve().parent.parent.parent.parent / ".env"),
+            str(Path(__file__).resolve().parent.parent.parent / ".env"),
+            ".env",
+            "../.env",
+            "backend/.env",
+        ],
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore"
     )
+
 
 
 settings = Settings()

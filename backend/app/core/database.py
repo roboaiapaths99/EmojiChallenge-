@@ -19,6 +19,7 @@ class FileCollection:
 
     @property
     def items(self) -> List[Dict[str, Any]]:
+        self.db_parent.load()
         return self.db_parent.data.get(self.name, [])
 
     async def find_one(self, filter_dict: Dict[str, Any]) -> Optional[Dict[str, Any]]:

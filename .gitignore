@@ -58,3 +58,7 @@ backend/data/uploads/*
 # Executables & binary CLI tools
 *.exe
 tools/
+
+# Backend runtime local database
+backend/data/*.json
+backend/data/*.tmp

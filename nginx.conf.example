@@ -20,7 +20,7 @@ server {
 
     # Gzip compression for API responses
     gzip on;
-    gzip_types application/json text/html text/plain;
+    gzip_types application/json text/plain;
 
     location / {
         proxy_pass http://127.0.0.1:8084;

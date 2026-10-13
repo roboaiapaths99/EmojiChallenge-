@@ -230,18 +230,27 @@ export function useCamera(): UseCameraReturn {
     runAttempt();
   }, [selectedDeviceId, startSelectedCamera]);
 
-  // Subscribe to disconnect and devicechange events
+  const attemptReconnectRef = useRef(attemptReconnect);
+  attemptReconnectRef.current = attemptReconnect;
+
+  const refreshDeviceListRef = useRef(refreshDeviceList);
+  refreshDeviceListRef.current = refreshDeviceList;
+
+  const isDisconnectedRef = useRef(isDisconnected);
+  isDisconnectedRef.current = isDisconnected;
+
+  // Subscribe to disconnect and devicechange events ONCE on mount
   useEffect(() => {
     const unsubDisconnect = cameraService.subscribeDisconnect(() => {
       console.warn("Camera stream ended / disconnected.");
-      attemptReconnect();
+      attemptReconnectRef.current();
     });
 
     const unsubDeviceChange = cameraService.subscribeDeviceChange(async () => {
       console.info("Media devices changed.");
-      const updatedList = await refreshDeviceList();
-      if (isDisconnected && updatedList.length > 0) {
-        attemptReconnect();
+      const updatedList = await refreshDeviceListRef.current();
+      if (isDisconnectedRef.current && updatedList.length > 0) {
+        attemptReconnectRef.current();
       }
     });
 
@@ -250,10 +259,10 @@ export function useCamera(): UseCameraReturn {
       unsubDeviceChange();
       if (reconnectTimerRef.current) {
         window.clearInterval(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
       }
-      cameraService.stopCurrentStream();
     };
-  }, [attemptReconnect, isDisconnected, refreshDeviceList]);
+  }, []);
 
   return {
     devices,

@@ -95,11 +95,14 @@ export class CameraService {
 
   public stopCurrentStream() {
     if (this.currentStream) {
-      for (const track of this.currentStream.getTracks()) {
-        track.stop();
-      }
+      const streamToStop = this.currentStream;
       this.currentStream = null;
       this.currentTrack = null;
+      for (const track of streamToStop.getTracks()) {
+        try {
+          track.stop();
+        } catch (_) {}
+      }
     }
   }
 
@@ -173,8 +176,10 @@ export class CameraService {
 
         // Monitor track ended event (e.g. camera unplugged)
         track.addEventListener("ended", () => {
-          for (const callback of this.onDisconnectCallbacks) {
-            callback();
+          if (this.currentTrack === track) {
+            for (const callback of this.onDisconnectCallbacks) {
+              callback();
+            }
           }
         });
 

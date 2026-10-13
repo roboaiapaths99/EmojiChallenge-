@@ -27,9 +27,16 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (localVideoRef.current && stream) {
-      localVideoRef.current.srcObject = stream;
-      localVideoRef.current.play().catch(() => {});
+    const video = localVideoRef.current;
+    if (video && stream) {
+      video.muted = true;
+      video.playsInline = true;
+      if (video.srcObject !== stream) {
+        video.srcObject = stream;
+      }
+      video.play().catch((err) => {
+        console.warn("PlayerSetupScreen local video play warning:", err);
+      });
     }
   }, [stream]);
 

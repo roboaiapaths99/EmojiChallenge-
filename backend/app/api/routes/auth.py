@@ -13,6 +13,7 @@ class VerifyOtpRequest(BaseModel):
     mobile: str = Field(..., description="10-digit Indian mobile number")
     otp: str = Field(..., description="6-digit OTP code")
     playerName: Optional[str] = Field(None, description="Player nickname or name")
+    email: Optional[str] = Field(None, description="Player email address for souvenir photo delivery")
 
 class TestSmsRequest(BaseModel):
     mobile: str = Field(..., description="10-digit mobile number")
@@ -50,6 +51,7 @@ async def verify_otp(req: VerifyOtpRequest):
 
     clean_mobile = sms_service._normalize_mobile(req.mobile)
     p_name = req.playerName.strip() if req.playerName and req.playerName.strip() else f"Player-{clean_mobile[-4:]}"
+    p_email = req.email.strip() if req.email and req.email.strip() else None
 
     # Record real attendee lead in photo_recipients so it immediately appears in the Admin Panel
     try:
@@ -58,15 +60,18 @@ async def verify_otp(req: VerifyOtpRequest):
         db = get_db()
         existing = await db["photo_recipients"].find_one({"mobile": clean_mobile})
         if existing:
+            update_data = {
+                "name": p_name,
+                "isReal": True,
+                "isDemo": False,
+                "status": "OTP Verified",
+                "updatedAt": utc_now_iso()
+            }
+            if p_email:
+                update_data["email"] = p_email
             await db["photo_recipients"].update_one(
                 {"mobile": clean_mobile},
-                {"$set": {
-                    "name": p_name,
-                    "isReal": True,
-                    "isDemo": False,
-                    "status": "OTP Verified",
-                    "updatedAt": utc_now_iso()
-                }}
+                {"$set": update_data}
             )
         else:
             lead_doc = {
@@ -75,7 +80,7 @@ async def verify_otp(req: VerifyOtpRequest):
                 "sessionId": "",
                 "name": p_name,
                 "mobile": clean_mobile,
-                "email": f"{clean_mobile}@event.live",
+                "email": p_email,
                 "score": 0,
                 "mode": "single",
                 "isReal": True,
@@ -95,6 +100,7 @@ async def verify_otp(req: VerifyOtpRequest):
         "player": {
             "mobile": clean_mobile,
             "name": p_name,
+            "email": p_email,
         }
     }
 

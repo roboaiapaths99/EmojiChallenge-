@@ -93,6 +93,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
   const [sessionModeFilter, setSessionModeFilter] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<RecipientLead | null>(null);
 
+  // Manual Add Lead state
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [newLeadName, setNewLeadName] = useState<string>("");
+  const [newLeadMobile, setNewLeadMobile] = useState<string>("");
+  const [newLeadEmail, setNewLeadEmail] = useState<string>("");
+  const [isSavingLead, setIsSavingLead] = useState<boolean>(false);
+
   // Benchmark Runner state
   const [isRunningBenchmark, setIsRunningBenchmark] = useState<boolean>(false);
   const [benchmarkData, setBenchmarkData] = useState<{
@@ -217,7 +224,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
   };
 
   const handleClearDemoData = async () => {
-    if (!window.confirm("Delete all 32 sample demo leads? Real attendee leads will be kept.")) return;
+    if (!window.confirm("Purge all demo / mock leads from database? Authentic attendee records will be kept.")) return;
     setIsLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/admin/clear-demo`, {
@@ -234,7 +241,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
         showToast(`🧹 ${data.message}`);
         await fetchAdminData(false);
       } else {
-        showToast("⚠️ Could not clear demo leads.");
+        showToast("⚠️ Could not purge demo leads.");
       }
     } catch (err) {
       showToast("⚠️ Network error contacting backend server.");
@@ -243,29 +250,60 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
     }
   };
 
-  const handleSeedRealData = async () => {
-    setIsLoading(true);
+  const handleDeleteLead = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete lead "${name}" (${id})?`)) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/seed-real-data`, {
-        method: "POST",
+      const res = await fetch(`${API_BASE}/api/admin/recipients/${encodeURIComponent(id)}`, {
+        method: "DELETE",
         headers: getHeaders(),
       });
-      if (res.status === 401) {
-        setAuthError(true);
-        showToast("🔒 Unauthorized: Incorrect admin secret key.");
-        return;
-      }
       if (res.ok) {
-        const data = await res.json();
-        showToast(`✨ Successfully populated ${data.seededLeads} authentic event leads and sessions!`);
+        showToast(`🗑️ Lead for "${name}" deleted.`);
+        setRecipients((prev) => prev.filter((r) => r.id !== id));
+        if (selectedLead?.id === id) setSelectedLead(null);
+      } else {
+        showToast("⚠️ Could not delete lead.");
+      }
+    } catch {
+      showToast("⚠️ Error contacting backend server.");
+    }
+  };
+
+  const handleManualAddLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLeadName.trim() || !newLeadMobile.trim()) {
+      showToast("⚠️ Name and mobile number are required.");
+      return;
+    }
+    setIsSavingLead(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/recipients`, {
+        method: "POST",
+        headers: {
+          ...getHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newLeadName.trim(),
+          mobile: newLeadMobile.trim(),
+          email: newLeadEmail.trim() || undefined,
+        }),
+      });
+      if (res.ok) {
+        showToast(`✓ Attendee "${newLeadName.trim()}" registered!`);
+        setNewLeadName("");
+        setNewLeadMobile("");
+        setNewLeadEmail("");
+        setShowAddModal(false);
         await fetchAdminData(false);
       } else {
-        showToast("⚠️ Could not trigger data seed.");
+        const err = await res.json().catch(() => ({}));
+        showToast(`⚠️ ${err.error || "Could not register lead"}`);
       }
-    } catch (err) {
-      showToast("⚠️ Error contacting backend server.");
+    } catch {
+      showToast("⚠️ Error contacting server.");
     } finally {
-      setIsLoading(false);
+      setIsSavingLead(false);
     }
   };
 
@@ -389,11 +427,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
             <button className="admin-action-refresh-btn" onClick={() => fetchAdminData(false)} title="Force refresh leads from server">
               🔄 REFRESH
             </button>
-            <button className="admin-action-clear-btn" onClick={handleClearDemoData} title="Delete all 32 sample demo leads">
-              🗑️ CLEAR DEMO DATA
+            <button className="admin-action-clear-btn" onClick={handleClearDemoData} title="Purge demo and sample leads">
+              🗑️ PURGE DEMO LEADS
             </button>
-            <button className="admin-action-pill-btn" onClick={handleSeedRealData} title="Populate realistic event dataset">
-              ✨ SEED DEMO LEADS
+            <button className="admin-action-pill-btn" onClick={() => setShowAddModal(true)} title="Manually register an attendee lead">
+              ➕ ADD ATTENDEE
             </button>
             <button className="admin-close-btn" onClick={onClose} title="Close Admin Panel">
               ✕
@@ -495,13 +533,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
               <span className="admin-stat-num" style={{ color: "#10b981" }}>
                 {stats.realRecipients ?? realCount}
               </span>
-              <span className="admin-stat-sub">Live Players via QR Claim</span>
+              <span className="admin-stat-sub">Verified & Claimed Participants</span>
             </div>
             <div className="admin-stat-box">
               <span className="admin-stat-label">TOTAL LEADS IN DB</span>
-              <span className="admin-stat-num">{stats.totalRecipients || recipients.length}</span>
+              <span className="admin-stat-num">{recipients.length}</span>
               <span className="admin-stat-sub">
-                {realCount} Real • {recipients.length - realCount} Demo
+                {realCount} Real {recipients.length > realCount ? `• ${recipients.length - realCount} Demo` : ""}
               </span>
             </div>
             <div className="admin-stat-box">
@@ -510,13 +548,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                 {stats.totalDownloaded ?? recipients.filter((r) => r.downloadedAt).length}
               </span>
               <span className="admin-stat-sub">
-                Conversion: {stats.conversionRate ?? Math.round((recipients.filter((r) => r.downloadedAt).length / Math.max(1, recipients.length)) * 100)}%
+                Conversion: {recipients.length > 0 ? Math.round((recipients.filter((r) => r.downloadedAt).length / recipients.length) * 100) : 0}%
               </span>
             </div>
             <div className="admin-stat-box">
               <span className="admin-stat-label">TOTAL GAMEPLAY SESSIONS</span>
-              <span className="admin-stat-num" style={{ color: "#818cf8" }}>{stats.totalSessions || sessions.length}</span>
-              <span className="admin-stat-sub">Avg Score: {stats.avgScore || 1220} pts</span>
+              <span className="admin-stat-num" style={{ color: "#818cf8" }}>{stats.totalSessions ?? sessions.length}</span>
+              <span className="admin-stat-sub">
+                {stats.avgScore && stats.avgScore > 0 ? `Avg Score: ${stats.avgScore} pts` : "No sessions completed"}
+              </span>
             </div>
           </div>
 
@@ -587,8 +627,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
               {isLoading ? (
                 <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>Loading real attendee leads…</div>
               ) : filteredLeads.length === 0 ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>
-                  No leads matching criteria. Try adjusting your search query or click "SEED REAL LEADS" above.
+                <div className="admin-empty-leads-box">
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>📋</div>
+                  <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#f8fafc", marginBottom: "6px" }}>
+                    No Attendee Leads Yet
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: "0.88rem", maxWidth: "440px", lineHeight: "1.5", margin: "0 auto 16px" }}>
+                    Real attendee names, mobile numbers, and emails will automatically appear here live as visitors verify their mobile via OTP at the kiosk or claim photos via QR code.
+                  </div>
+                  <button
+                    className="admin-action-pill-btn"
+                    onClick={() => setShowAddModal(true)}
+                    style={{ margin: "0 auto" }}
+                  >
+                    ➕ MANUALLY REGISTER ATTENDEE
+                  </button>
                 </div>
               ) : (
                 <div className="admin-table-scroll">
@@ -607,7 +660,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                     <tbody>
                       {filteredLeads.map((r) => {
                         const isReal = Boolean(r.isReal || (!r.isDemo && !r.id.startsWith("rec_10")));
-                        const initials = r.name
+                        const initials = (r.name || "P")
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
@@ -645,12 +698,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                             </td>
                             <td>{r.email ? <span className="admin-email-text">{r.email}</span> : <span style={{ color: "#6b7280" }}>—</span>}</td>
                             <td>
-                              {r.score ? (
+                              {r.score && r.score > 0 ? (
                                 <span className="admin-score-badge">
                                   {r.score} pts <span style={{ opacity: 0.7, fontSize: "0.7rem" }}>({r.mode?.toUpperCase() || "SINGLE"})</span>
                                 </span>
                               ) : (
-                                <span style={{ color: "#6b7280" }}>—</span>
+                                <span className="admin-pending-score">Awaiting Game</span>
                               )}
                             </td>
                             <td style={{ fontSize: "0.85rem", color: "#9ca3af" }}>
@@ -666,14 +719,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                                 <span className="status-badge-downloaded" title={`Downloaded at ${new Date(r.downloadedAt).toLocaleTimeString()}`}>
                                   ✓ DOWNLOADED
                                 </span>
+                              ) : r.photoId ? (
+                                <span className="status-badge-claimed">📸 PHOTO READY</span>
                               ) : (
-                                <span className="status-badge-claimed">⏳ CLAIMED</span>
+                                <span className="status-badge-claimed" style={{ background: "rgba(168, 85, 247, 0.15)", borderColor: "#c084fc", color: "#c084fc" }}>
+                                  🛡️ OTP VERIFIED
+                                </span>
                               )}
                             </td>
                             <td>
-                              <button className="admin-detail-btn" onClick={() => setSelectedLead(r)}>
-                                View
-                              </button>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <button className="admin-detail-btn" onClick={() => setSelectedLead(r)}>
+                                  View
+                                </button>
+                                <button
+                                  className="admin-delete-row-btn"
+                                  title="Delete lead"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteLead(r.id, r.name);
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -976,7 +1045,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                 <div className="lead-detail-grid">
                   <div className="lead-detail-item">
                     <span className="detail-item-label">PHONE NUMBER</span>
-                    <span className="detail-item-value">{selectedLead.mobile}</span>
+                    <span className="detail-item-value">
+                      <a
+                        href={`https://wa.me/${selectedLead.mobile.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "#34d399", textDecoration: "none" }}
+                      >
+                        💬 {selectedLead.mobile}
+                      </a>
+                    </span>
                   </div>
                   <div className="lead-detail-item">
                     <span className="detail-item-label">EMAIL ADDRESS</span>
@@ -985,32 +1063,120 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
                   <div className="lead-detail-item">
                     <span className="detail-item-label">GAME SCORE</span>
                     <span className="detail-item-value" style={{ color: "#34d399", fontWeight: 800 }}>
-                      {selectedLead.score || 1250} pts ({selectedLead.mode?.toUpperCase() || "SINGLE"})
+                      {selectedLead.score && selectedLead.score > 0
+                        ? `${selectedLead.score} pts (${selectedLead.mode?.toUpperCase() || "SINGLE"})`
+                        : "Awaiting Gameplay"}
                     </span>
                   </div>
                   <div className="lead-detail-item">
                     <span className="detail-item-label">SOUVENIR STATUS</span>
                     <span className="detail-item-value">
-                      {selectedLead.downloadedAt ? "✓ Downloaded" : "⏳ Claimed (Pending)"}
+                      {selectedLead.downloadedAt ? "✓ Downloaded" : selectedLead.photoId ? "📸 Photo Ready" : "🛡️ OTP Verified"}
                     </span>
                   </div>
                   <div className="lead-detail-item">
-                    <span className="detail-item-label">CLAIM TIMESTAMP</span>
+                    <span className="detail-item-label">REGISTERED / CLAIMED</span>
                     <span className="detail-item-value">{new Date(selectedLead.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="lead-detail-item">
-                    <span className="detail-item-label">PHOTO ID</span>
+                    <span className="detail-item-label">PHOTO SOUVENIR</span>
                     <span className="detail-item-value" style={{ fontFamily: "monospace" }}>
-                      {selectedLead.photoId}
+                      {selectedLead.photoId ? (
+                        <a
+                          href={`/api/photos/token/${selectedLead.photoId}/download`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#60a5fa" }}
+                        >
+                          View Photo ({selectedLead.photoId.slice(0, 12)}…)
+                        </a>
+                      ) : (
+                        "—"
+                      )}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="lead-detail-footer">
+              <div className="lead-detail-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <button
+                  className="admin-action-clear-btn"
+                  onClick={() => handleDeleteLead(selectedLead.id, selectedLead.name)}
+                >
+                  🗑️ Delete Lead
+                </button>
                 <button className="admin-export-btn" onClick={() => setSelectedLead(null)}>
-                  Done
+                  Close
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manual Add Lead Modal */}
+        {showAddModal && (
+          <div className="lead-detail-modal-backdrop" onClick={() => setShowAddModal(false)}>
+            <div className="admin-modal-inner-card" onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
+                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800 }}>➕ Register Real Attendee Lead</h3>
+                <button className="admin-close-btn" onClick={() => setShowAddModal(false)}>
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleManualAddLead}>
+                <div className="admin-input-group">
+                  <label className="admin-input-label">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    className="admin-text-field"
+                    placeholder="e.g. Rahul Sharma"
+                    value={newLeadName}
+                    onChange={(e) => setNewLeadName(e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-input-group">
+                  <label className="admin-input-label">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    className="admin-text-field"
+                    placeholder="10-digit mobile (e.g. 9876543210)"
+                    value={newLeadMobile}
+                    onChange={(e) => setNewLeadMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  />
+                </div>
+
+                <div className="admin-input-group">
+                  <label className="admin-input-label">Email Address (Optional)</label>
+                  <input
+                    type="email"
+                    className="admin-text-field"
+                    placeholder="e.g. rahul@company.com"
+                    value={newLeadEmail}
+                    onChange={(e) => setNewLeadEmail(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "24px" }}>
+                  <button
+                    type="button"
+                    className="admin-action-refresh-btn"
+                    onClick={() => setShowAddModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="admin-action-pill-btn"
+                    disabled={isSavingLead}
+                  >
+                    {isSavingLead ? "Saving…" : "Save Attendee Lead ✓"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

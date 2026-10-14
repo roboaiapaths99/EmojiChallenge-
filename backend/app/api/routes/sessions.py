@@ -58,6 +58,59 @@ async def upload_session_photo(
         # Associate photo with session
         await session_service.attach_photo_to_session(session_id, photo_doc["id"])
 
+        # Link session, score and photo to attendee lead in photo_recipients
+        try:
+            from app.core.database import get_db
+            from app.utils.helpers import utc_now_iso
+            from app.services.sms_service import sms_service
+            db = get_db()
+            sess = await session_service.get_session(session_id)
+            if sess:
+                final_score = int(sess.get("finalScore", 0))
+                mode = sess.get("mode", "single")
+                players = sess.get("players", [])
+
+                for p in players:
+                    p_mob = str(p.get("mobile", "")).strip()
+                    p_name = p.get("name", "").strip() or sess.get("playerName", "Challenger")
+                    p_email = p.get("email") or None
+                    if p_mob:
+                        clean_m = sms_service._normalize_mobile(p_mob)
+                        existing_lead = await db["photo_recipients"].find_one({"mobile": clean_m})
+                        if existing_lead:
+                            up_data = {
+                                "photoId": photo_doc["id"],
+                                "sessionId": session_id,
+                                "score": final_score,
+                                "mode": mode,
+                                "status": "Photo Ready",
+                                "updatedAt": utc_now_iso()
+                            }
+                            if p_name and not p_name.startswith("Player-"):
+                                up_data["name"] = p_name
+                            if p_email:
+                                up_data["email"] = p_email
+                            await db["photo_recipients"].update_one({"mobile": clean_m}, {"$set": up_data})
+                        else:
+                            new_lead = {
+                                "id": f"rec_{clean_m}",
+                                "photoId": photo_doc["id"],
+                                "sessionId": session_id,
+                                "name": p_name,
+                                "mobile": clean_m,
+                                "email": p_email,
+                                "score": final_score,
+                                "mode": mode,
+                                "isReal": True,
+                                "isDemo": False,
+                                "status": "Photo Ready",
+                                "downloadedAt": None,
+                                "createdAt": utc_now_iso(),
+                            }
+                            await db["photo_recipients"].insert_one(new_lead)
+        except Exception as link_err:
+            logger.warning("Could not link attendee lead to photo: %s", link_err)
+
         host = request.headers.get("host") or "localhost:3001"
         scheme = request.url.scheme or "http"
 

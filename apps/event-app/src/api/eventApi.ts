@@ -10,6 +10,7 @@ export interface SessionUploadResult {
 export interface PlayerAuthData {
   mobile: string;
   name: string;
+  email?: string;
   verified?: boolean;
 }
 
@@ -64,17 +65,19 @@ export async function sendOtp(
 export async function verifyOtp(
   mobile: string,
   otp: string,
-  playerName?: string
+  playerName?: string,
+  email?: string
 ): Promise<{ success: boolean; message: string; player?: PlayerAuthData }> {
   const cleanMobile = mobile.replace(/\D/g, "").slice(-10);
   const cleanOtp = otp.trim();
+  const cleanEmail = email?.trim() || undefined;
 
   // 1. Primary: backend API
   try {
     const res = await fetch(`${API_BASE}/api/auth/verify-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mobile: cleanMobile, otp: cleanOtp, playerName }),
+      body: JSON.stringify({ mobile: cleanMobile, otp: cleanOtp, playerName, email: cleanEmail }),
     });
 
     if (res.ok) {
@@ -109,6 +112,7 @@ export async function verifyOtp(
           player: {
             mobile: cleanMobile,
             name: playerName || `Player-${cleanMobile.slice(-4)}`,
+            email: cleanEmail,
             verified: true,
           },
         };

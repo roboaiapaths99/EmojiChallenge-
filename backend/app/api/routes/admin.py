@@ -118,44 +118,132 @@ async def list_admin_recipients(
     }
 
 
-@router.post("/clear-demo")
-async def clear_demo_data_endpoint() -> Dict[str, Any]:
-    """Clear all seeded demo recipients, sessions, and demo photos, preserving real attendee leads."""
+@router.delete("/recipients/{recipient_id}")
+async def delete_admin_recipient(recipient_id: str) -> Dict[str, Any]:
+    """Delete a single attendee lead from the database."""
+    db = get_db()
+    if hasattr(db, "data") and "photo_recipients" in db.data:
+        db.data["photo_recipients"] = [r for r in db.data["photo_recipients"] if r.get("id") != recipient_id]
+        if hasattr(db, "save"):
+            await db.save()
+    else:
+        await db["photo_recipients"].delete_one({"id": recipient_id})
+    return {"success": True, "message": f"Lead '{recipient_id}' deleted."}
+
+
+@router.post("/recipients")
+async def create_admin_recipient(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Manually add an authentic attendee lead from the Admin console."""
+    from app.utils.helpers import utc_now_iso, generate_id
+    from app.services.sms_service import sms_service
+    name = (payload.get("name") or "").strip()
+    raw_mobile = (payload.get("mobile") or "").strip()
+    email = (payload.get("email") or "").strip() or None
+
+    if not name or not raw_mobile:
+        return {"success": False, "error": "Name and mobile number are required."}
+
+    clean_mobile = sms_service._normalize_mobile(raw_mobile)
     db = get_db()
 
-    # 1. In photo_recipients, keep only real leads
+    existing = await db["photo_recipients"].find_one({"mobile": clean_mobile})
+    if existing:
+        update_data = {
+            "name": name,
+            "isReal": True,
+            "isDemo": False,
+            "status": "Manually Added",
+            "updatedAt": utc_now_iso(),
+        }
+        if email:
+            update_data["email"] = email
+        await db["photo_recipients"].update_one({"mobile": clean_mobile}, {"$set": update_data})
+        existing.update(update_data)
+        return {"success": True, "recipient": existing, "message": "Updated existing attendee record."}
+
+    new_id = generate_id("rec")
+    lead_doc = {
+        "id": new_id,
+        "photoId": "",
+        "sessionId": "",
+        "name": name,
+        "mobile": clean_mobile,
+        "email": email,
+        "score": int(payload.get("score") or 0),
+        "mode": payload.get("mode") or "single",
+        "isReal": True,
+        "isDemo": False,
+        "status": "Manually Added",
+        "createdAt": utc_now_iso(),
+        "downloadedAt": None,
+    }
+    await db["photo_recipients"].insert_one(lead_doc)
+    return {"success": True, "recipient": lead_doc, "message": "New attendee lead added."}
+
+
+@router.post("/clear-demo")
+@router.post("/purge-leads")
+async def clear_demo_data_endpoint(purge_all: bool = Query(False)) -> Dict[str, Any]:
+    """
+    Clear all seeded demo recipients, sessions, and demo photos.
+    If purge_all=True, clears all leads including test entries.
+    """
+    db = get_db()
+
     all_rec = await (await db["photo_recipients"].find()).to_list(2000)
-    real_rec = [r for r in all_rec if not (r.get("isDemo", False) or str(r.get("id", "")).startswith("rec_10"))]
+
+    if purge_all:
+        remaining_rec = []
+    else:
+        remaining_rec = [
+            r for r in all_rec
+            if not (
+                r.get("isDemo", False)
+                or str(r.get("id", "")).startswith("rec_10")
+                or "@event.com" in str(r.get("email", ""))
+                or "@event.live" in str(r.get("email", ""))
+                or str(r.get("name", "")).lower() in ["admin tester", "priya sharma", "aarav patel", "marcus vance", "sofia chen", "david miller"]
+            )
+        ]
+
     if hasattr(db, "data") and "photo_recipients" in db.data:
-        db.data["photo_recipients"] = real_rec
+        db.data["photo_recipients"] = remaining_rec
+    else:
+        # For MongoDB
+        await db["photo_recipients"].delete_many({
+            "$or": [
+                {"isDemo": True},
+                {"id": {"$regex": "^rec_10"}},
+                {"email": {"$regex": "@event\\.com|@event\\.live"}},
+                {"name": {"$in": ["Admin Tester", "Priya Sharma", "Aarav Patel", "Marcus Vance", "Sofia Chen", "David Miller"]}}
+            ]
+        })
 
-    # 2. In game_sessions, keep non-seeded
-    all_sess = await (await db["game_sessions"].find()).to_list(2000)
-    real_sess = [s for s in all_sess if not str(s.get("id", "")).startswith("sess_2026_10")]
-    if hasattr(db, "data") and "game_sessions" in db.data:
-        db.data["game_sessions"] = real_sess
-
-    # 3. In photos, keep non-seeded
-    all_photos = await (await db["photos"].find()).to_list(2000)
-    real_photos = [p for p in all_photos if not str(p.get("id", "")).startswith("photo_souvenir_10")]
-    if hasattr(db, "data") and "photos" in db.data:
-        db.data["photos"] = real_photos
+    # Clear seeded sessions & photos
+    if hasattr(db, "data"):
+        if "game_sessions" in db.data:
+            db.data["game_sessions"] = [s for s in db.data["game_sessions"] if not str(s.get("id", "")).startswith("sess_2026_10")]
+        if "photos" in db.data:
+            db.data["photos"] = [p for p in db.data["photos"] if not str(p.get("id", "")).startswith("photo_souvenir_10")]
 
     if hasattr(db, "save"):
         await db.save()
 
     return {
         "success": True,
-        "message": f"Demo data cleared. Preserved {len(real_rec)} authentic attendee leads.",
-        "remainingRealLeads": len(real_rec)
+        "message": f"Demo/mock data purged. {len(remaining_rec)} authentic attendee leads remain in system.",
+        "remainingRealLeads": len(remaining_rec)
     }
 
 
 @router.post("/seed-real-data")
 async def seed_real_data_endpoint() -> Dict[str, Any]:
-    """Seed or refresh authentic attendee leads, game sessions, and souvenirs."""
-    result = await seed_real_event_data()
-    return result
+    """Disabled to prevent polluting live leads with dummy sample data."""
+    return {
+        "success": True,
+        "message": "Demo seeding is disabled for live production event mode.",
+        "seededLeads": 0
+    }
 
 
 @router.get("/git-sync")

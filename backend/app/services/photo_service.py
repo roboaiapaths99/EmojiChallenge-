@@ -87,7 +87,7 @@ class PhotoService:
         return result
 
     async def add_recipient(self, photo_id: str, name: str, mobile: str, email: Optional[str] = None) -> Dict[str, Any]:
-        recipient_id = generate_id("rec")
+        clean_mob = mobile.strip()
         photo = await self.photo_collection.find_one({"id": photo_id})
         session_id = photo.get("sessionId") if photo else None
         score = 0
@@ -98,16 +98,44 @@ class PhotoService:
                 score = sess.get("finalScore", 0)
                 mode = sess.get("mode", "single")
 
+        # Check existing recipient by mobile or photoId to prevent duplicate rows
+        existing = await self.recipient_collection.find_one({"mobile": clean_mob})
+        if not existing and photo_id:
+            existing = await self.recipient_collection.find_one({"photoId": photo_id})
+
+        if existing:
+            update_data = {
+                "photoId": photo_id,
+                "name": name.strip(),
+                "mobile": clean_mob,
+                "score": score if score > 0 else existing.get("score", 0),
+                "mode": mode,
+                "isReal": True,
+                "isDemo": False,
+                "status": "Claimed",
+                "updatedAt": utc_now_iso(),
+            }
+            if session_id:
+                update_data["sessionId"] = session_id
+            if email and email.strip():
+                update_data["email"] = email.strip()
+            await self.recipient_collection.update_one({"id": existing["id"]}, {"$set": update_data})
+            existing.update(update_data)
+            return existing
+
+        recipient_id = generate_id("rec")
         recipient_doc = {
             "id": recipient_id,
             "photoId": photo_id,
             "sessionId": session_id,
             "name": name.strip(),
-            "mobile": mobile.strip(),
+            "mobile": clean_mob,
             "email": email.strip() if email else None,
             "score": score,
             "mode": mode,
             "isReal": True,
+            "isDemo": False,
+            "status": "Claimed",
             "createdAt": utc_now_iso(),
             "downloadedAt": None,
         }
@@ -118,7 +146,7 @@ class PhotoService:
     async def mark_downloaded(self, recipient_id: str) -> None:
         await self.recipient_collection.update_one(
             {"id": recipient_id},
-            {"$set": {"downloadedAt": utc_now_iso()}}
+            {"$set": {"downloadedAt": utc_now_iso(), "status": "Downloaded"}}
         )
 
     async def get_recipients_for_photo(self, photo_id: str) -> List[Dict[str, Any]]:

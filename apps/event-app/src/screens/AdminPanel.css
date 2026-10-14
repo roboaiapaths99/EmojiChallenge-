@@ -701,3 +701,81 @@
   background: #475569;
   color: #ffffff;
 }
+
+/* Row delete button */
+.admin-delete-row-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-delete-row-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+/* Empty state styling */
+.admin-empty-leads-box {
+  padding: 56px 24px;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  margin: 16px 0;
+}
+
+.admin-pending-score {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+/* Manual Lead Add Modal */
+.admin-modal-inner-card {
+  width: 90vw;
+  max-width: 480px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+  color: #f8fafc;
+}
+
+.admin-input-group {
+  margin-bottom: 16px;
+}
+
+.admin-input-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.admin-text-field {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.admin-text-field:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+

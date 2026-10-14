@@ -12,6 +12,7 @@ interface OTPLoginScreenProps {
 interface PlayerFormState {
   name: string;
   mobile: string;
+  email: string;
   otp: string[];
   isOtpSent: boolean;
   isSending: boolean;
@@ -31,6 +32,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
   const [p1State, setP1State] = useState<PlayerFormState>({
     name: "Player 1",
     mobile: "",
+    email: "",
     otp: ["", "", "", "", "", ""],
     isOtpSent: false,
     isSending: false,
@@ -45,6 +47,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
   const [p2State, setP2State] = useState<PlayerFormState>({
     name: "Player 2",
     mobile: "",
+    email: "",
     otp: ["", "", "", "", "", ""],
     isOtpSent: false,
     isSending: false,
@@ -211,7 +214,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
     try {
       const cleanMobile = state.mobile.replace(/\D/g, "").slice(-10);
-      const res = await verifyOtp(cleanMobile, otpCode, state.name);
+      const res = await verifyOtp(cleanMobile, otpCode, state.name, state.email);
       if (res.success) {
         setState((prev) => ({
           ...prev,
@@ -253,6 +256,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
       p1: {
         name: p1State.name.trim() || "Player 1",
         mobile: p1State.mobile.replace(/\D/g, "").slice(-10),
+        email: p1State.email.trim() || undefined,
         verified: true,
       },
       p2:
@@ -260,6 +264,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
           ? {
               name: p2State.name.trim() || "Player 2",
               mobile: p2State.mobile.replace(/\D/g, "").slice(-10),
+              email: p2State.email.trim() || undefined,
               verified: true,
             }
           : undefined,
@@ -292,12 +297,12 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
         {/* Player Name */}
         <div className="form-group">
-          <label className="input-label">Player Nickname</label>
+          <label className="input-label">Full Name / Nickname</label>
           <input
             type="text"
             className="text-input"
             value={state.name}
-            maxLength={18}
+            maxLength={24}
             disabled={state.isVerified}
             onChange={(e) => setState((prev) => ({ ...prev, name: e.target.value }))}
             placeholder={`Enter ${label} Name`}
@@ -306,7 +311,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
         {/* Mobile Number Input */}
         <div className="form-group">
-          <label className="input-label">Mobile Number (SMS)</label>
+          <label className="input-label">Mobile Number (WhatsApp / SMS)</label>
           <div className="mobile-input-wrapper">
             <span className="country-prefix">+91</span>
             <input
@@ -338,6 +343,19 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
               </button>
             )}
           </div>
+        </div>
+
+        {/* Email Address Input */}
+        <div className="form-group">
+          <label className="input-label">Email Address (Optional - For Photo Delivery)</label>
+          <input
+            type="email"
+            className="text-input"
+            value={state.email}
+            disabled={state.isVerified}
+            onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))}
+            placeholder="e.g. attendee@company.com"
+          />
         </div>
 
         {/* Status Banner */}

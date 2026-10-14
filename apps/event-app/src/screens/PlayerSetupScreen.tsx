@@ -31,12 +31,28 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     if (video && stream) {
       video.muted = true;
       video.playsInline = true;
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("webkit-playsinline", "true");
+      video.autoplay = true;
+
       if (video.srcObject !== stream) {
         video.srcObject = stream;
       }
+
+      const handlePlay = () => {
+        video.play().catch((err) => {
+          console.warn("Video play error on loadedmetadata:", err);
+        });
+      };
+
+      video.addEventListener("loadedmetadata", handlePlay);
       video.play().catch((err) => {
-        console.warn("PlayerSetupScreen local video play warning:", err);
+        console.warn("PlayerSetupScreen initial play warning:", err);
       });
+
+      return () => {
+        video.removeEventListener("loadedmetadata", handlePlay);
+      };
     }
   }, [stream]);
 

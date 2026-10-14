@@ -513,3 +513,109 @@
   color: #94a3b8;
   cursor: not-allowed;
 }
+
+/* Mobile Responsive Overrides */
+@media (max-width: 640px) {
+  .otp-login-screen {
+    overflow-y: auto;
+  }
+
+  .otp-header {
+    padding: 14px 16px 8px;
+  }
+
+  .otp-back-btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .otp-main-title {
+    font-size: 1.5rem;
+  }
+
+  .otp-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .otp-spacer {
+    display: none;
+  }
+
+  .player-tabs-bar {
+    gap: 8px;
+    margin: 8px auto 0;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .otp-stage {
+    padding: 12px 14px;
+    align-items: flex-start;
+  }
+
+  .otp-card {
+    padding: 18px 16px;
+    border-radius: 18px;
+    gap: 14px;
+  }
+
+  .card-player-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .country-prefix {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .mobile-input {
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  .send-otp-btn {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .otp-boxes-row {
+    gap: 6px;
+  }
+
+  .otp-box {
+    width: auto;
+    flex: 1;
+    max-width: 48px;
+    height: 52px;
+    font-size: 1.4rem;
+    border-radius: 10px;
+  }
+
+  .verify-otp-btn {
+    padding: 13px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .otp-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .auth-status-bar {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .proceed-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1rem;
+    text-align: center;
+  }
+}

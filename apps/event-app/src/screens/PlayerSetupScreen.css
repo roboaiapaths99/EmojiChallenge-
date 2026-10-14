@@ -211,3 +211,90 @@
   font-weight: 700;
   color: var(--ink-2);
 }
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  .player-setup-page {
+    background-color: #030712;
+  }
+
+  .setup-nav {
+    height: 56px;
+    padding: 0 16px;
+    background-color: #111827;
+    border-bottom: 1px solid #1f2937;
+  }
+
+  .nav-cancel-btn, .nav-skip-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+  }
+
+  .mode-indicator-tag {
+    font-size: 13px;
+    color: #f3f4f6;
+  }
+
+  .setup-stage {
+    padding: 10px 12px;
+  }
+
+  .setup-viewport-frame {
+    height: 100%;
+    max-height: none;
+    border-width: 2px;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .setup-zone-guide {
+    padding: 16px;
+  }
+
+  .zone-1p .zone-rect {
+    width: 88%;
+    height: 75%;
+    border-width: 2px;
+  }
+
+  .zone-2p {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .zone-2p .p1-zone, .zone-2p .p2-zone {
+    width: 100%;
+    height: 48%;
+  }
+
+  .zone-pill {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .setup-guidance-bar {
+    bottom: 24px;
+    width: 90%;
+  }
+
+  .instruction-pill {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+
+  .countdown-callout {
+    padding: 14px 32px;
+  }
+
+  .countdown-number {
+    font-size: 54px;
+  }
+
+  .setup-footer-tips {
+    height: 38px;
+    font-size: 11px;
+    padding: 0 12px;
+    text-align: center;
+    color: #9ca3af;
+  }
+}

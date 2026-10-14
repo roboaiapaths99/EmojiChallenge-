@@ -33,10 +33,26 @@ export const LiveCameraPanel: React.FC<LiveCameraPanelProps> = ({
 
   useEffect(() => {
     const v = videoRef.current;
-    if (v && stream && v.srcObject !== stream) {
+    if (v && stream) {
       v.muted = true;
-      v.srcObject = stream;
-      v.play().catch(() => {});
+      v.playsInline = true;
+      v.setAttribute("playsinline", "true");
+      v.setAttribute("webkit-playsinline", "true");
+      v.autoplay = true;
+
+      if (v.srcObject !== stream) {
+        v.srcObject = stream;
+      }
+
+      const handlePlay = () => {
+        v.play().catch((err) => console.warn("LiveCameraPanel loadedmetadata play error:", err));
+      };
+      v.addEventListener("loadedmetadata", handlePlay);
+      v.play().catch((err) => console.warn("LiveCameraPanel initial play error:", err));
+
+      return () => {
+        v.removeEventListener("loadedmetadata", handlePlay);
+      };
     }
   }, [stream]);
 

@@ -24,27 +24,24 @@ export interface CameraStreamResult {
   attemptIndex: number;
 }
 
-// Optimized constraint sequence (PRD §6.4 & §20 Troubleshooting: 720p low-latency)
+// Optimized constraint sequence supporting mobile front camera and low-latency HD
 const FALLBACK_LADDER: MediaTrackConstraints[] = [
-  // 1. 1280x720 @ 30-60 FPS (Zero driver latency, instant responsiveness)
+  // 1. Front-facing camera @ 720p ideal
   {
-    width: { ideal: 1280, min: 640 },
-    height: { ideal: 720, min: 480 },
-    frameRate: { ideal: 30, min: 24 },
+    facingMode: "user",
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    frameRate: { ideal: 30, max: 60 },
   },
-  // 2. 1920x1080 @ 30 FPS
+  // 2. Front-facing camera standard
   {
-    width: { ideal: 1920, min: 640 },
-    height: { ideal: 1080, min: 480 },
-    frameRate: { ideal: 30, min: 24 },
+    facingMode: "user",
   },
-  // 3. 1280x720 @ 24 FPS
+  // 3. Flexible ideal front camera
   {
-    width: { ideal: 1280, min: 640 },
-    height: { ideal: 720, min: 480 },
-    frameRate: { ideal: 24, min: 15 },
+    facingMode: { ideal: "user" },
   },
-  // 4. Browser default video
+  // 4. Any camera
   {},
 ];
 
@@ -156,7 +153,7 @@ export class CameraService {
       const ladderConstraints = FALLBACK_LADDER[i];
       const videoConstraints: MediaTrackConstraints = {
         ...ladderConstraints,
-        ...(deviceId ? { deviceId: { exact: deviceId } } : {}),
+        ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: "user" }),
       };
 
       try {

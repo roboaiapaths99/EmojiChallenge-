@@ -305,3 +305,48 @@
   font-weight: 800;
   font-size: 14px;
 }
+
+/* Mobile Responsive Overrides */
+@media (max-width: 900px) {
+  .qr-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .qr-header {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  .header-left h2 {
+    font-size: 18px;
+  }
+
+  .timeout-pill {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .done-header-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .qr-main {
+    grid-template-columns: 1fr;
+    padding: 16px 14px 48px;
+    gap: 20px;
+    min-height: auto;
+  }
+
+  .photo-frame-wrap {
+    max-height: 380px;
+    border-width: 3px;
+  }
+
+  .kiosk-form-inputs {
+    grid-template-columns: 1fr;
+  }
+}

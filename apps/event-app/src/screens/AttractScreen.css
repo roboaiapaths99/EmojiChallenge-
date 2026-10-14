@@ -231,3 +231,75 @@
   font-size: 15px;
   color: var(--ink-muted);
 }
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  .attract-page {
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .attract-operator-corner {
+    top: 12px;
+    right: 12px;
+    gap: 6px;
+  }
+
+  .attract-operator-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .attract-content {
+    padding: 12px 8px;
+    max-width: 100%;
+  }
+
+  .attract-emoji-hero {
+    font-size: 80px;
+    margin-bottom: 8px;
+  }
+
+  .attract-badge {
+    font-size: 11px;
+    padding: 5px 14px;
+    margin-bottom: 8px;
+  }
+
+  .attract-title {
+    font-size: 32px;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .attract-taglines {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .tagline-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .attract-features {
+    display: none;
+  }
+
+  .attract-start-btn {
+    width: 100%;
+    max-width: 320px;
+    padding: 16px 20px;
+    font-size: 18px;
+    justify-content: center;
+    margin-bottom: 16px;
+    border-width: 3px;
+    box-shadow: 0 4px 0 var(--line-strong), 0 8px 16px rgba(16, 185, 129, 0.3);
+  }
+
+  .instruction-sub {
+    font-size: 13px;
+  }
+}

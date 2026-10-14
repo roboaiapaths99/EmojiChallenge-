@@ -26,13 +26,13 @@ export const QRScreen: React.FC<QRScreenProps> = ({
   const [secondsRemaining, setSecondsRemaining] = useState<number>(45);
   const [copied, setCopied] = useState<boolean>(false);
 
-  // Use the backend generated claim URL or fallback to origin
+  // Use the backend generated claim URL or fallback to real public live domain
   const effectiveClaimUrl = (() => {
-    if (uploadInfo?.claimUrl) {
+    if (uploadInfo?.claimUrl && !uploadInfo.claimUrl.includes("localhost") && !uploadInfo.claimUrl.includes("127.0.0.1")) {
       return uploadInfo.claimUrl;
     }
     const token = uploadInfo?.token || "preview";
-    return `${window.location.origin}/claim/${token}`;
+    return `https://api.emojichallenge.technula.com/claim/${token}`;
   })();
 
   useEffect(() => {

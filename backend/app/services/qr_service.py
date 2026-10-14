@@ -19,23 +19,19 @@ class QRService:
     """Service generating secure claim URLs and handling QR token lifecycle."""
 
     @staticmethod
-    def build_claim_url(token: str, request_host: Optional[str] = None, request_scheme: str = "http") -> str:
+    def build_claim_url(token: str, request_host: Optional[str] = None, request_scheme: str = "https") -> str:
         """
         Build mobile claim URL for QR code pointing to the interactive claim & download page.
-        Automatically converts localhost to local LAN IP so phones on the event Wi-Fi can open it.
+        Always points to public live domain so any mobile phone scanning the QR code can open it.
         """
-        lan_ip = get_lan_ip()
-        port = settings.PORT
+        base = settings.MOBILE_CLAIM_BASE_URL or settings.PHOTO_BASE_URL
+        if base and "localhost" not in base and "127.0.0.1" not in base:
+            return f"{base.rstrip('/')}/claim/{token}"
 
-        if request_host:
-            # If request is from localhost / loopback, swap in LAN IP for mobile phone friendliness
-            if "localhost" in request_host or "127.0.0.1" in request_host:
-                host_with_port = f"{lan_ip}:{port}"
-            else:
-                host_with_port = request_host
-            return f"{request_scheme}://{host_with_port}/claim/{token}"
+        if request_host and "emojichallenge.technula.com" in request_host:
+            return f"https://{request_host}/claim/{token}"
 
-        return f"http://{lan_ip}:{port}/claim/{token}"
+        return f"https://api.emojichallenge.technula.com/claim/{token}"
 
     @staticmethod
     def build_preview_url(storage_key: str, request_host: Optional[str] = None, request_scheme: str = "http") -> str:

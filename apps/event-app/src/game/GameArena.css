@@ -705,6 +705,52 @@
   .ga-title { display: none; }
 }
 
+@media (max-width: 768px) {
+  .ga-header {
+    height: 56px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .ga-round-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .ga-timer-pill {
+    font-size: 20px;
+    min-width: 80px;
+  }
+  .ga-arena {
+    grid-template-rows: 46vh auto;
+  }
+  .ga-cam {
+    border-radius: 14px;
+    margin: 8px;
+  }
+  .ga-target-emoji {
+    font-size: 64px;
+  }
+  .ga-target-name {
+    font-size: 20px;
+  }
+  .ga-target-prompt {
+    font-size: 13px;
+  }
+  .ga-card {
+    padding: 16px;
+  }
+  .ga-ready-card {
+    padding: 24px 20px;
+    width: 90%;
+    max-width: 320px;
+  }
+  .ga-ready-preview {
+    font-size: 64px;
+  }
+  .ga-ready-name {
+    font-size: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ga-target-emoji,
   .ga-ready-preview,

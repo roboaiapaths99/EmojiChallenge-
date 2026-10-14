@@ -18,7 +18,7 @@ export const QRScreen: React.FC<QRScreenProps> = ({
   photo,
   uploadInfo,
   emojiPhotos = [],
-  playerName = "Challenger",
+  playerName = "",
   finalScore = 0,
   onDone,
 }) => {
@@ -79,7 +79,7 @@ export const QRScreen: React.FC<QRScreenProps> = ({
     <div className="qr-page">
       <header className="qr-header">
         <div className="header-left">
-          <span className="brand-tag">✨ SOUVENIR FOR {playerName.toUpperCase()} • {finalScore} PTS</span>
+          <span className="brand-tag">✨ SOUVENIR {playerName ? `FOR ${playerName.toUpperCase()}` : ""} • {finalScore} PTS</span>
           <h2>ALL YOUR PHOTOS ARE READY!</h2>
         </div>
         <div className="header-right">

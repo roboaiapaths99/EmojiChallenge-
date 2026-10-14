@@ -30,7 +30,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 }) => {
   // Player 1 state
   const [p1State, setP1State] = useState<PlayerFormState>({
-    name: "Player 1",
+    name: "",
     mobile: "",
     email: "",
     otp: ["", "", "", "", "", ""],
@@ -45,7 +45,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
   // Player 2 state (for 2-player mode)
   const [p2State, setP2State] = useState<PlayerFormState>({
-    name: "Player 2",
+    name: "",
     mobile: "",
     email: "",
     otp: ["", "", "", "", "", ""],
@@ -86,6 +86,15 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
     const state = player === "p1" ? p1State : p2State;
     const setState = player === "p1" ? setP1State : setP2State;
 
+    if (!state.name.trim()) {
+      setState((prev) => ({
+        ...prev,
+        errorMessage: "Please enter your name first.",
+        statusMessage: "",
+      }));
+      return;
+    }
+
     const cleanMobile = state.mobile.replace(/\D/g, "").slice(-10);
     if (cleanMobile.length !== 10) {
       setState((prev) => ({
@@ -104,7 +113,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
     }));
 
     try {
-      const res = await sendOtp(cleanMobile, state.name);
+      const res = await sendOtp(cleanMobile, state.name.trim());
       if (res.success) {
         setState((prev) => ({
           ...prev,
@@ -252,18 +261,21 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
   const handleStartGame = () => {
     if (!canProceed) return;
+    const cleanP1Mob = p1State.mobile.replace(/\D/g, "").slice(-10);
+    const cleanP2Mob = p2State.mobile.replace(/\D/g, "").slice(-10);
+
     onSuccess({
       p1: {
-        name: p1State.name.trim() || "Player 1",
-        mobile: p1State.mobile.replace(/\D/g, "").slice(-10),
+        name: p1State.name.trim() || (cleanP1Mob ? `Player ${cleanP1Mob.slice(-4)}` : "Player 1"),
+        mobile: cleanP1Mob,
         email: p1State.email.trim() || undefined,
         verified: true,
       },
       p2:
         mode === "two"
           ? {
-              name: p2State.name.trim() || "Player 2",
-              mobile: p2State.mobile.replace(/\D/g, "").slice(-10),
+              name: p2State.name.trim() || (cleanP2Mob ? `Player ${cleanP2Mob.slice(-4)}` : "Player 2"),
+              mobile: cleanP2Mob,
               email: p2State.email.trim() || undefined,
               verified: true,
             }
@@ -297,7 +309,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
 
         {/* Player Name */}
         <div className="form-group">
-          <label className="input-label">Full Name / Nickname</label>
+          <label className="input-label">Full Name / Nickname *</label>
           <input
             type="text"
             className="text-input"
@@ -305,7 +317,7 @@ export const OTPLoginScreen: React.FC<OTPLoginScreenProps> = ({
             maxLength={24}
             disabled={state.isVerified}
             onChange={(e) => setState((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder={`Enter ${label} Name`}
+            placeholder={isP1 ? "Enter Full Name (e.g. Rahul Sharma)" : "Enter Player 2 Full Name"}
           />
         </div>
 

@@ -43,13 +43,13 @@ def render_claim_html(
     # Extract session metrics
     mode_text = "Single Player"
     final_score = 0
-    player_name = "Challenger"
+    player_name = ""
     rounds_summary = ""
     if session:
         mode = session.get("mode", "single")
         mode_text = "1-Player Solo" if mode == "single" else "2-Player Battle"
         final_score = int(session.get("finalScore", session.get("p1Score", 0)))
-        player_name = session.get("playerName", "Challenger")
+        player_name = session.get("playerName", "")
         rounds = session.get("rounds", [])
         if rounds:
             rounds_summary = " • ".join([f"R{i+1}: {r.get('score', 0)} pts" for i, r in enumerate(rounds)])

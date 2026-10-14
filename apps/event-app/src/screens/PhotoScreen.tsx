@@ -104,13 +104,16 @@ export const PhotoScreen: React.FC<PhotoScreenProps> = ({
           emojiPhotos: currentEmojiPhotos,
         } = propsRef.current;
 
+        const p1ActualName = players[0]?.name || playerName || "Player 1";
+        const p2ActualName = players[1]?.name || "Player 2";
+
         const photoResult = await composeBrandedPhoto({
           video,
           mode: currentMode,
           p1Score: currentP1,
           p2Score: currentP2,
-          p1Name: playerName || "Challenger",
-          p2Name: "Challenger 2",
+          p1Name: p1ActualName,
+          p2Name: p2ActualName,
           rounds: currentRounds,
           eventName: "EMOJI FACE CHALLENGE",
         });
@@ -128,7 +131,7 @@ export const PhotoScreen: React.FC<PhotoScreenProps> = ({
             p2Score: currentP2,
             finalScore: Math.max(currentP1, currentP2),
             rounds: currentRounds,
-            playerName: playerName || "Challenger",
+            playerName: p1ActualName,
             players: players,
             photoBlob: photoResult.blob,
             emojiPhotos: currentEmojiPhotos.map((ep) => ({
@@ -145,7 +148,7 @@ export const PhotoScreen: React.FC<PhotoScreenProps> = ({
         }
 
         setTimeout(() => {
-          onPhotoReadyRef.current(photoResult, uploadInfo, playerName || "Challenger");
+          onPhotoReadyRef.current(photoResult, uploadInfo, p1ActualName);
         }, 300);
       } catch (err) {
         console.error("Failed to compose branded photo:", err);

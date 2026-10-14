@@ -25,7 +25,7 @@ class SessionService:
             "id": session_id,
             "eventId": payload.eventId,
             "mode": payload.mode or "single",
-            "playerName": payload.playerName or "Challenger",
+            "playerName": payload.playerName or (payload.players[0].get("name") if payload.players else "Player"),
             "players": payload.players or [],
             "rounds": payload.rounds or [],
             "p1Score": float(p1),

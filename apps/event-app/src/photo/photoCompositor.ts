@@ -26,8 +26,8 @@ export async function composeBrandedPhoto(
     mode,
     p1Score,
     p2Score,
-    p1Name = "CHALLENGER",
-    p2Name = "CHALLENGER 2",
+    p1Name = "PLAYER",
+    p2Name = "PLAYER 2",
     rounds,
     eventName = "EMOJI FACE CHALLENGE"
   } = options;
@@ -69,7 +69,7 @@ export async function composeBrandedPhoto(
   ctx.font = "900 38px -apple-system, sans-serif";
   ctx.fillText(eventName, 56, headerY + 90);
 
-  // Top header right: Challenger Name Badge
+  // Top header right: Attendee Name Badge
   const displayName = mode === "single" ? p1Name.toUpperCase() : `${p1Name.toUpperCase()} & ${p2Name.toUpperCase()}`;
   ctx.fillStyle = "#F4F4EE";
   ctx.fillRect(width - 450, headerY + 24, 390, 76);
@@ -79,7 +79,7 @@ export async function composeBrandedPhoto(
 
   ctx.fillStyle = "#666666";
   ctx.font = "bold 13px -apple-system, sans-serif";
-  ctx.fillText("CHALLENGER", width - 430, headerY + 50);
+  ctx.fillText(mode === "single" ? "ATTENDEE" : "PARTICIPANTS", width - 430, headerY + 50);
 
   ctx.fillStyle = "#111111";
   ctx.font = "900 24px -apple-system, sans-serif";

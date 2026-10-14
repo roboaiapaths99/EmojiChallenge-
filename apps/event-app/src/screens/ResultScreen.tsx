@@ -9,6 +9,8 @@ interface ResultScreenProps {
   p2Total: number;
   rounds: RoundResult[];
   emojiPhotos?: EmojiSnapshot[];
+  p1Name?: string;
+  p2Name?: string;
   onTakePhoto: () => void;
 }
 
@@ -18,10 +20,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   p2Total,
   rounds,
   emojiPhotos = [],
+  p1Name,
+  p2Name,
   onTakePhoto,
 }) => {
+  const name1 = p1Name?.trim() || "Player 1";
+  const name2 = p2Name?.trim() || "Player 2";
   const winner =
-    p1Total > p2Total ? "PLAYER 1" : p2Total > p1Total ? "PLAYER 2" : "TIE";
+    p1Total > p2Total ? name1 : p2Total > p1Total ? name2 : "TIE";
 
   const starCount =
     p1Total >= 750 ? 5 : p1Total >= 600 ? 4 : p1Total >= 450 ? 3 : p1Total >= 250 ? 2 : 1;
@@ -43,13 +49,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     <div className="result-page">
       <header className="result-header">
         <span className="brand-tag">CHALLENGE COMPLETE</span>
-        <h1 className="result-title">FINAL RESULTS</h1>
+        <h1 className="result-title">
+          {mode === "single" && p1Name ? `RESULTS: ${p1Name.toUpperCase()}` : "FINAL RESULTS"}
+        </h1>
       </header>
 
       <main className="result-main">
         {mode === "single" ? (
           <section className="result-solo-card">
-            <span className="solo-label">TOTAL SCORE</span>
+            <span className="solo-label">{p1Name ? `${p1Name.toUpperCase()}'S SCORE` : "TOTAL SCORE"}</span>
             <div className="solo-score-number">{p1Total}</div>
             <div className="solo-stars">
               {"★".repeat(starCount)}
@@ -65,18 +73,18 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           </section>
         ) : (
           <section className="result-duel-grid">
-            <div className={`duel-player-card ${winner === "PLAYER 1" ? "card-winner" : ""}`}>
-              <span className="player-pill p1-pill">PLAYER 1</span>
+            <div className={`duel-player-card ${winner === name1 ? "card-winner" : ""}`}>
+              <span className="player-pill p1-pill">{name1.toUpperCase()}</span>
               <div className="duel-score-number">{p1Total}</div>
-              {winner === "PLAYER 1" && <div className="winner-crown-tag">👑 WINNER!</div>}
+              {winner === name1 && <div className="winner-crown-tag">👑 WINNER!</div>}
             </div>
 
             <div className="duel-vs-divider">VS</div>
 
-            <div className={`duel-player-card ${winner === "PLAYER 2" ? "card-winner" : ""}`}>
-              <span className="player-pill p2-pill">PLAYER 2</span>
+            <div className={`duel-player-card ${winner === name2 ? "card-winner" : ""}`}>
+              <span className="player-pill p2-pill">{name2.toUpperCase()}</span>
               <div className="duel-score-number">{p2Total}</div>
-              {winner === "PLAYER 2" && <div className="winner-crown-tag">👑 WINNER!</div>}
+              {winner === name2 && <div className="winner-crown-tag">👑 WINNER!</div>}
             </div>
           </section>
         )}

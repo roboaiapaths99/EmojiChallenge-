@@ -150,11 +150,13 @@ export async function submitGameSessionAndPhoto(params: {
     p2Score,
     finalScore,
     rounds,
-    playerName = "Challenger",
+    playerName = "",
     players = [],
     photoBlob,
     emojiPhotos = [],
   } = params;
+
+  const actualPlayerName = playerName.trim() || players[0]?.name || "Player";
 
   // 1. Create or register session in database
   try {
@@ -164,7 +166,7 @@ export async function submitGameSessionAndPhoto(params: {
       body: JSON.stringify({
         id: sessionId,
         mode,
-        playerName,
+        playerName: actualPlayerName,
         players,
         p1Score,
         p2Score,
@@ -179,7 +181,7 @@ export async function submitGameSessionAndPhoto(params: {
   // 2. Upload main souvenir pose photo blob and candid emoji expression photos via FormData
   const formData = new FormData();
   formData.append("photo", photoBlob, `session_${sessionId}.jpg`);
-  formData.append("playerName", playerName);
+  formData.append("playerName", actualPlayerName);
 
   if (emojiPhotos && emojiPhotos.length > 0) {
     emojiPhotos.forEach((ep, idx) => {

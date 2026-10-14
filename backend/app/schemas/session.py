@@ -7,7 +7,7 @@ class CreateSessionRequest(BaseModel):
     sessionId: Optional[str] = None
     eventId: Optional[str] = None
     mode: str = Field(default="single", pattern="^(single|two)$")
-    playerName: Optional[str] = "Challenger"
+    playerName: Optional[str] = "Player"
     players: Optional[List[Dict[str, Any]]] = None
     rounds: Optional[List[Dict[str, Any]]] = None
     p1Score: Optional[float] = 0.0
@@ -26,7 +26,7 @@ class StoredSessionSchema(BaseModel):
     id: str
     eventId: Optional[str] = None
     mode: str
-    playerName: Optional[str] = "Challenger"
+    playerName: Optional[str] = "Player"
     players: List[Dict[str, Any]] = []
     rounds: List[Dict[str, Any]] = []
     p1Score: float = 0.0

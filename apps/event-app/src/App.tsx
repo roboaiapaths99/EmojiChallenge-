@@ -52,7 +52,7 @@ export const App: React.FC = () => {
   const [p1Scores, setP1Scores] = useState<number[]>([0, 0, 0, 0]);
   const [p2Scores, setP2Scores] = useState<number[]>([0, 0, 0, 0]);
   const [emojiPhotos, setEmojiPhotos] = useState<EmojiSnapshot[]>([]);
-  const [playerName, setPlayerName] = useState<string>("Challenger");
+  const [playerName, setPlayerName] = useState<string>("");
   const [playersAuth, setPlayersAuth] = useState<PlayerAuthData[]>([]);
   const [composedPhoto, setComposedPhoto] = useState<PhotoCompositionResult | null>(null);
   const [uploadInfo, setUploadInfo] = useState<any>(undefined);
@@ -121,7 +121,7 @@ export const App: React.FC = () => {
     setUploadInfo(undefined);
     setEmojiPhotos([]);
     setPlayersAuth([]);
-    setPlayerName("Challenger");
+    setPlayerName("");
   };
 
   const p1Total = p1Scores.reduce((a, b) => a + b, 0);
@@ -321,6 +321,8 @@ export const App: React.FC = () => {
           p2Total={p2Total}
           rounds={rounds}
           emojiPhotos={emojiPhotos}
+          p1Name={playersAuth[0]?.name || playerName}
+          p2Name={playersAuth[1]?.name || "Player 2"}
           onTakePhoto={() => setGameState("PHOTO_CAPTURE")}
         />
       )}

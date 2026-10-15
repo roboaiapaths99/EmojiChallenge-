@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import type { UseFaceTrackingReturn } from "../vision/useFaceTracking";
 import { predictEmojiExpression } from "@emoji-face-challenge/expression-engine";
 import "./AdminPanel.css";

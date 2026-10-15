@@ -1,27 +1,31 @@
 .mode-select-page {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
   background-color: var(--bg);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .mode-header {
-  height: 80px;
-  padding: 0 40px;
+  height: clamp(56px, 8vh, 80px);
+  padding: 0 clamp(16px, 3vw, 40px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 2px solid var(--line);
   background-color: var(--surface);
+  flex-shrink: 0;
 }
 
 .back-btn {
-  padding: 10px 20px;
+  padding: 8px 18px;
   background-color: var(--surface-alt);
   border: 2px solid var(--line-strong);
   border-radius: var(--radius-full);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--ink);
 }
@@ -39,40 +43,47 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: clamp(20px, 4vh, 40px) clamp(16px, 3vw, 40px);
+  box-sizing: border-box;
 }
 
 .mode-title {
-  font-size: 56px;
+  font-size: clamp(32px, 5vw, 56px);
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--ink);
   margin-bottom: 8px;
+  text-align: center;
 }
 
 .mode-subtitle {
-  font-size: 20px;
+  font-size: clamp(15px, 2vw, 20px);
   color: var(--ink-2);
-  margin-bottom: 48px;
+  margin-bottom: clamp(20px, 4vh, 48px);
+  text-align: center;
 }
 
 .mode-cards-grid {
   display: grid;
-  grid-template-columns: 380px 380px;
-  gap: 36px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
+  justify-content: center;
+  width: 100%;
+  max-width: 780px;
+  gap: clamp(16px, 3vw, 36px);
 }
 
 .mode-card {
   background-color: var(--surface);
   border: 4px solid var(--line-strong);
   border-radius: var(--radius-lg);
-  padding: 44px 32px;
+  padding: clamp(24px, 4vh, 44px) clamp(20px, 3vw, 32px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   box-shadow: 0 8px 0 var(--line-strong);
   transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+  box-sizing: border-box;
 }
 
 .mode-card:hover {

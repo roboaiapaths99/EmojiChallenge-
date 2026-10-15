@@ -1,12 +1,14 @@
 .otp-login-screen {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
   background: radial-gradient(circle at 50% 12%, #ffffff 0%, #f8fafc 48%, #eef2f6 100%);
   color: #0f172a;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   user-select: none;
   z-index: 950;

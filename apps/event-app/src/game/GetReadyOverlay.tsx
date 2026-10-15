@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { sound } from "./soundEffects";
 
 interface GetReadyOverlayProps {
   /** e.g. "ROUND 1 OF 4" */
@@ -37,9 +38,16 @@ export const GetReadyOverlay: React.FC<GetReadyOverlayProps> = ({
   onDoneRef.current = onDone;
 
   useEffect(() => {
+    // Play countdown audio
+    if (count > 0) {
+      sound.playCountdownBeep(false);
+    } else {
+      sound.playCountdownBeep(true);
+    }
+
     if (count <= 0) {
-      onDoneRef.current();
-      return;
+      const delay = window.setTimeout(() => onDoneRef.current(), 350);
+      return () => window.clearTimeout(delay);
     }
     const t = window.setTimeout(() => setCount((c) => c - 1), 1000);
     return () => window.clearTimeout(t);

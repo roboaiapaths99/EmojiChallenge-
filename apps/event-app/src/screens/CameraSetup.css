@@ -1,11 +1,13 @@
 .camera-setup-page {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
   display: flex;
   flex-direction: column;
   background-color: var(--bg);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Disconnect Alert (PRD §6.3) */
@@ -58,8 +60,8 @@
 
 /* Header */
 .setup-header {
-  height: 80px;
-  padding: 0 32px;
+  height: clamp(56px, 8vh, 80px);
+  padding: 0 clamp(16px, 3vw, 32px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -82,7 +84,7 @@
 }
 
 .brand-title {
-  font-size: 24px;
+  font-size: clamp(18px, 2.5vw, 24px);
   font-weight: 900;
   color: var(--ink);
   letter-spacing: -0.02em;
@@ -92,7 +94,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 8px 14px;
   background-color: var(--surface-alt);
   border: 2px solid var(--line);
   border-radius: var(--radius-full);
@@ -109,10 +111,11 @@
 .setup-main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-  padding: 24px 32px;
-  height: calc(100vh - 80px);
+  grid-template-columns: 1fr minmax(300px, 380px);
+  gap: clamp(14px, 2vw, 24px);
+  padding: clamp(14px, 2vh, 24px) clamp(16px, 2.5vw, 32px);
+  min-height: calc(100vh - 80px);
+  height: auto;
   box-sizing: border-box;
 }
 
@@ -453,3 +456,17 @@
   text-align: center;
   color: var(--ink-muted);
 }
+
+@media (max-width: 900px) {
+  .setup-main {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 16px 14px;
+    gap: 16px;
+  }
+  .video-viewport {
+    min-height: 260px;
+    height: 45vh;
+  }
+}
+

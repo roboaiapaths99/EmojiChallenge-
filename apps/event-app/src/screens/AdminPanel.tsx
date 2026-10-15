@@ -113,33 +113,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
   // Live face prediction state
   const [livePrediction, setLivePrediction] = useState<any>(null);
 
-  // Auto-refresh interval (every 4 seconds) to stream live attendee leads
-  useEffect(() => {
-    fetchAdminData(false);
-    const interval = setInterval(() => {
-      fetchAdminData(true); // silent background poll
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Poll face prediction if tracking is active
-  useEffect(() => {
-    if (!faceTracking) return;
-    let animId: number;
-
-    const loop = () => {
-      const p1 = faceTracking.assignment.players.find((p) => p.id === "p1");
-      if (p1 && p1.face.blendshapes) {
-        const pred = predictEmojiExpression(p1.face.blendshapes);
-        setLivePrediction(pred);
-      }
-      animId = requestAnimationFrame(loop);
-    };
-
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, [faceTracking]);
-
   const showToast = (msg: string) => {
     setActionMessage(msg);
     setTimeout(() => setActionMessage(null), 4000);
@@ -156,10 +129,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
   const [keyInput, setKeyInput] = useState<string>("");
   const [authError, setAuthError] = useState<boolean>(false);
 
-  const getHeaders = () => ({ "x-admin-secret": adminKey.trim() });
+  const getHeaders = useCallback(() => ({ "x-admin-secret": adminKey.trim() }), [adminKey]);
 
-  const fetchAdminData = async (silent: boolean = false) => {
-    if (!silent) setIsLoading(true);
+  const fetchAdminData = useCallback(async (showLoading: boolean = false) => {
+    if (showLoading) setIsLoading(true);
     const headers = getHeaders();
 
     try {
@@ -167,7 +140,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
       const statsRes = await fetch(`${API_BASE}/api/admin/stats`, { headers });
       if (statsRes.status === 401) {
         setAuthError(true);
-        if (!silent) showToast("🔒 Admin secret key required or invalid.");
+        if (showLoading) showToast("🔒 Admin secret key required or invalid.");
         return;
       }
       if (statsRes.ok) {
@@ -204,11 +177,38 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, faceTracking })
         setModelMetrics(data.metrics || null);
       }
     } catch (err) {
-      if (!silent) console.warn("Could not fetch admin data from FastAPI:", err);
+      if (showLoading) console.warn("Could not fetch admin data from FastAPI:", err);
     } finally {
-      if (!silent) setIsLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, [getHeaders]);
+
+  // Auto-refresh interval (every 4 seconds) to stream live attendee leads
+  useEffect(() => {
+    fetchAdminData(false);
+    const interval = setInterval(() => {
+      fetchAdminData(false); // silent background poll
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [fetchAdminData]);
+
+  // Poll face prediction if tracking is active
+  useEffect(() => {
+    if (!faceTracking) return;
+    let animId: number;
+
+    const loop = () => {
+      const p1 = faceTracking.assignment.players.find((p) => p.id === "p1");
+      if (p1 && p1.face.blendshapes) {
+        const pred = predictEmojiExpression(p1.face.blendshapes);
+        setLivePrediction(pred);
+      }
+      animId = requestAnimationFrame(loop);
+    };
+
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, [faceTracking]);
 
   const handleSaveKey = (newKey: string) => {
     const clean = newKey.trim();

@@ -12,6 +12,7 @@ import { LiveCameraPanel } from "../game/LiveCameraPanel";
 import { getEmojiHint } from "../game/emojiHints";
 import { captureEmojiSnapshot, type EmojiSnapshot } from "../photo/emojiSnapshotCapture";
 import { FullscreenButton } from "../ui/FullscreenButton";
+import { sound } from "../game/soundEffects";
 import "./RoundScreen.css";
 
 interface RoundScreenProps {
@@ -89,6 +90,7 @@ export const RoundScreen: React.FC<RoundScreenProps> = ({
   const finish = async (p1Score: number, p2Score: number) => {
     if (isCompleteRef.current) return;
     isCompleteRef.current = true;
+    sound.playRoundCompleteSound();
     let snapshot: EmojiSnapshot | undefined;
     const v = videoRef?.current;
     if (v && v.videoWidth > 0) {
@@ -154,6 +156,11 @@ export const RoundScreen: React.FC<RoundScreenProps> = ({
           if (r.smoothedScore > p2BestRef.current) {
             p2BestRef.current = r.smoothedScore;
           }
+        }
+
+        // Play positive match chime when face matches goal
+        if (p1Score >= profile.threshold || (mode === "two" && p2Score >= profile.threshold)) {
+          sound.playMatchSound();
         }
 
         // Throttled UI state updates (~30fps React sync) prevents React render lag and keeps 60fps video buttery smooth

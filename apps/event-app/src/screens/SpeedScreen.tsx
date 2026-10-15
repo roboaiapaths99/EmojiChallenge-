@@ -11,6 +11,7 @@ import { LiveCameraPanel } from "../game/LiveCameraPanel";
 import { getEmojiHint } from "../game/emojiHints";
 import { captureEmojiSnapshot, type EmojiSnapshot } from "../photo/emojiSnapshotCapture";
 import { FullscreenButton } from "../ui/FullscreenButton";
+import { sound } from "../game/soundEffects";
 import "./SpeedScreen.css";
 
 interface SpeedScreenProps {
@@ -100,6 +101,7 @@ export const SpeedScreen: React.FC<SpeedScreenProps> = ({
 
       const target = profiles[indexRef.current];
       setToast(pts1 >= (target?.threshold ?? 50) ? `✅ ${target?.emoji} +${pts1} PTS` : `${target?.emoji} +${pts1} PTS`);
+      sound.playTargetLockSound();
 
       // Capture action snapshot for this emoji change
       const v = videoRef?.current;
@@ -127,6 +129,7 @@ export const SpeedScreen: React.FC<SpeedScreenProps> = ({
 
       if (indexRef.current + 1 >= profiles.length) {
         isFinishedRef.current = true;
+        sound.playRoundCompleteSound();
         setTimeout(() => {
           onCompleteRef.current({
             p1Score: p1TotalRef.current,

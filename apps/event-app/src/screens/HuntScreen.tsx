@@ -10,6 +10,7 @@ import { GetReadyOverlay } from "../game/GetReadyOverlay";
 import { LiveCameraPanel } from "../game/LiveCameraPanel";
 import { captureEmojiSnapshot, type EmojiSnapshot } from "../photo/emojiSnapshotCapture";
 import { FullscreenButton } from "../ui/FullscreenButton";
+import { sound } from "../game/soundEffects";
 import "./HuntScreen.css";
 
 interface MatchedItem {
@@ -147,6 +148,7 @@ export const HuntScreen: React.FC<HuntScreenProps> = ({
           const m = evaluate(p1.face.blendshapes, p1.face.quality, holdP1, matchedP1, now);
           setHoldingId(holdP1.current.id);
           if (m) {
+            sound.playHuntFoundSound();
             const item: MatchedItem = {
               id: m.profile.id,
               emoji: m.profile.emoji,
@@ -176,6 +178,7 @@ export const HuntScreen: React.FC<HuntScreenProps> = ({
         if (mode === "two" && p2?.face.blendshapes) {
           const m = evaluate(p2.face.blendshapes, p2.face.quality, holdP2, matchedP2, now);
           if (m) {
+            sound.playHuntFoundSound();
             const item: MatchedItem = {
               id: m.profile.id,
               emoji: m.profile.emoji,
@@ -190,6 +193,7 @@ export const HuntScreen: React.FC<HuntScreenProps> = ({
 
         if (timeLeftRef.current <= 0) {
           isFinishedRef.current = true;
+          sound.playRoundCompleteSound();
           setTimeout(() => {
             onCompleteRef.current({
               p1Score: matchedP1.current.size * POINTS_PER_FIND,

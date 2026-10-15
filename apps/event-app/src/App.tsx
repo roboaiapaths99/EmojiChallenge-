@@ -112,6 +112,35 @@ export const App: React.FC = () => {
   }, [gameState]);
 
   // Reset scores for a new session
+  // Random emoji selector for dynamic, replayable gameplay
+  const selectRandomSessionProfiles = () => {
+    const r1Pool = DEFAULT_PROFILES.filter((p) =>
+      ["smile", "surprised", "laugh", "tongue", "heart_eyes"].includes(p.id)
+    );
+    const r1 = r1Pool[Math.floor(Math.random() * r1Pool.length)] || DEFAULT_PROFILES[0];
+
+    const r2Pool = DEFAULT_PROFILES.filter(
+      (p) => p.id !== r1.id && ["wink", "angry", "shocked", "pleading", "thinking", "wink_tongue", "surprised"].includes(p.id)
+    );
+    const r2 = r2Pool[Math.floor(Math.random() * r2Pool.length)] || DEFAULT_PROFILES[1];
+
+    const remaining = DEFAULT_PROFILES.filter((p) => p.id !== r1.id && p.id !== r2.id);
+    const shuffled = [...remaining].sort(() => 0.5 - Math.random());
+    const r3 = shuffled.slice(0, 4);
+    if (r3.length < 4) {
+      DEFAULT_PROFILES.forEach((p) => {
+        if (r3.length < 4 && !r3.some((x) => x.id === p.id)) {
+          r3.push(p);
+        }
+      });
+    }
+
+    return { r1, r2, r3 };
+  };
+
+  const [sessionProfiles, setSessionProfiles] = useState(selectRandomSessionProfiles);
+
+  // Reset scores and roll fresh random emojis for every new session
   const resetSession = (mode: GameMode) => {
     setGameMode(mode);
     setRounds([]);
@@ -122,20 +151,11 @@ export const App: React.FC = () => {
     setEmojiPhotos([]);
     setPlayersAuth([]);
     setPlayerName("");
+    setSessionProfiles(selectRandomSessionProfiles());
   };
 
   const p1Total = p1Scores.reduce((a, b) => a + b, 0);
   const p2Total = p2Scores.reduce((a, b) => a + b, 0);
-
-  // Emojis for rounds
-  const easyProfile = DEFAULT_PROFILES[0]; // 😀
-  const mediumProfile = DEFAULT_PROFILES[1]; // 😮
-  const speedProfiles = [
-    DEFAULT_PROFILES[0], // 😀
-    DEFAULT_PROFILES[1], // 😮
-    DEFAULT_PROFILES[2], // 😉
-    DEFAULT_PROFILES[4], // 😆
-  ];
 
   return (
     <div className="event-app-container">
@@ -209,13 +229,13 @@ export const App: React.FC = () => {
         <RulesScreen onStartGame={() => setGameState("ROUND_1")} />
       )}
 
-      {/* 6. ROUND 1: EASY EXPRESSION */}
+      {/* 6. ROUND 1: EASY EXPRESSION (7 SECONDS, RANDOMIZED EMOJI) */}
       {gameState === "ROUND_1" && (
         <RoundScreen
           roundNumber={1}
           roundTitle="EASY CHALLENGE"
-          durationSeconds={8}
-          profile={easyProfile}
+          durationSeconds={7}
+          profile={sessionProfiles.r1}
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
@@ -229,20 +249,20 @@ export const App: React.FC = () => {
             }
             setRounds((prev) => [
               ...prev.filter((r) => r.roundId !== "r1"),
-              { roundId: "r1", score: p1Score, target, durationMs: 8000 },
+              { roundId: "r1", score: p1Score, target, durationMs: 7000 },
             ]);
             setGameState("ROUND_2");
           }}
         />
       )}
 
-      {/* 7. ROUND 2: MEDIUM EXPRESSION */}
+      {/* 7. ROUND 2: MEDIUM EXPRESSION (6 SECONDS, RANDOMIZED EMOJI) */}
       {gameState === "ROUND_2" && (
         <RoundScreen
           roundNumber={2}
-          roundTitle="MEDIUM CHALLENGE"
-          durationSeconds={8}
-          profile={mediumProfile}
+          roundTitle="EXPRESSIVE CHALLENGE"
+          durationSeconds={6}
+          profile={sessionProfiles.r2}
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
@@ -256,18 +276,18 @@ export const App: React.FC = () => {
             }
             setRounds((prev) => [
               ...prev.filter((r) => r.roundId !== "r2"),
-              { roundId: "r2", score: p1Score, target, durationMs: 8000 },
+              { roundId: "r2", score: p1Score, target, durationMs: 6000 },
             ]);
             setGameState("ROUND_3_SPEED");
           }}
         />
       )}
 
-      {/* 8. ROUND 3: SPEED CHALLENGE */}
+      {/* 8. ROUND 3: SPEED CHALLENGE (16 SECONDS TOTAL, 4 SECONDS PER EMOJI) */}
       {gameState === "ROUND_3_SPEED" && (
         <SpeedScreen
-          profiles={speedProfiles}
-          perTargetMs={5000}
+          profiles={sessionProfiles.r3}
+          perTargetMs={4000}
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
@@ -281,18 +301,18 @@ export const App: React.FC = () => {
             }
             setRounds((prev) => [
               ...prev.filter((r) => r.roundId !== "r3"),
-              { roundId: "r3", score: p1Score, target: "⚡ 4x", durationMs: speedProfiles.length * 5000 },
+              { roundId: "r3", score: p1Score, target: "⚡ 4x", durationMs: 16000 },
             ]);
             setGameState("ROUND_4_HUNT");
           }}
         />
       )}
 
-      {/* 9. ROUND 4: EMOJI HUNT */}
+      {/* 9. ROUND 4: EMOJI HUNT (20 SECONDS TOTAL) */}
       {gameState === "ROUND_4_HUNT" && (
         <HuntScreen
           profiles={DEFAULT_PROFILES}
-          durationMs={18000}
+          durationMs={20000}
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
@@ -306,7 +326,7 @@ export const App: React.FC = () => {
             }
             setRounds((prev) => [
               ...prev.filter((r) => r.roundId !== "r4"),
-              { roundId: "r4", score: p1Score, target: "🔍 HUNT", durationMs: 18000 },
+              { roundId: "r4", score: p1Score, target: "🔍 HUNT", durationMs: 20000 },
             ]);
             setGameState("RESULT");
           }}

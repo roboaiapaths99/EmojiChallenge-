@@ -1,15 +1,17 @@
 .qr-page {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
   background-color: var(--bg);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .qr-header {
-  height: 80px;
-  padding: 0 40px;
+  height: clamp(56px, 8vh, 80px);
+  padding: 0 clamp(16px, 3vw, 40px);
   display: flex;
   align-items: center;
   justify-content: space-between;

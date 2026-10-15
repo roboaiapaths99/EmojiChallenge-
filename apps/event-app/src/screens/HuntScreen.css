@@ -52,11 +52,34 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
   align-content: start;
-  padding: 4px;
+  padding: 4px 6px 4px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #ffc83d rgba(0, 0, 0, 0.08);
+}
+
+.hunt-grid::-webkit-scrollbar {
+  width: 9px;
+  display: block;
+}
+
+.hunt-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-full);
+}
+
+.hunt-grid::-webkit-scrollbar-thumb {
+  background: #ffc83d;
+  border-radius: var(--radius-full);
+  border: 2px solid #111111;
+}
+
+.hunt-grid::-webkit-scrollbar-thumb:hover {
+  background: #ffb700;
 }
 
 .hunt-tile {
@@ -64,7 +87,7 @@
   background-color: var(--surface-alt);
   border: 3px solid var(--line);
   border-radius: var(--radius-md);
-  padding: 10px 6px 8px;
+  padding: 8px 6px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,9 +96,9 @@
 }
 
 .hunt-tile-emoji {
-  font-size: 40px;
+  font-size: 36px;
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .hunt-tile-name {
@@ -121,35 +144,79 @@
   100% { transform: scale(1); }
 }
 
-/* Tablet & Mobile responsive overrides */
-@media (max-width: 900px), (max-width: 1180px) and (orientation: portrait) {
+/* 1. Tablet Landscape & Compact Laptops (e.g. 1024x768, 1280x800, 1180x820) */
+@media (max-height: 850px), (min-width: 901px) and (max-width: 1200px) {
   .hunt-summary {
-    padding: 10px 14px;
-    gap: 10px;
+    padding: 8px 14px;
+    gap: 8px;
   }
   .hunt-found-num {
-    font-size: 38px;
+    font-size: 34px;
   }
   .hunt-found-of {
     font-size: 13px;
   }
   .hunt-catalog {
-    padding: 12px 14px;
+    padding: 10px 12px;
+  }
+  .hunt-catalog-title {
+    margin-bottom: 8px;
+    font-size: 11px;
   }
   .hunt-grid {
-    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-    gap: 8px;
-    max-height: 240px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 2px 4px;
   }
   .hunt-tile {
-    padding: 6px 4px 5px;
+    padding: 5px 3px 4px;
+    border-width: 2px;
   }
   .hunt-tile-emoji {
-    font-size: 28px;
-    margin-bottom: 3px;
+    font-size: 26px;
+    margin-bottom: 2px;
   }
   .hunt-tile-name {
-    font-size: 10px;
+    font-size: 9.5px;
+    line-height: 1.1;
+  }
+}
+
+/* 2. Tablet Portrait & Mobile (<= 900px or portrait) */
+@media (max-width: 900px), (max-width: 1180px) and (orientation: portrait) {
+  .hunt-summary {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .hunt-found-num {
+    font-size: 32px;
+  }
+  .hunt-found-of {
+    font-size: 12px;
+  }
+  .hunt-catalog {
+    padding: 10px 12px;
+  }
+  .hunt-catalog-title {
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .hunt-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-height: 220px;
+    padding: 2px 4px;
+  }
+  .hunt-tile {
+    padding: 5px 3px 4px;
+    border-width: 2px;
+  }
+  .hunt-tile-emoji {
+    font-size: 24px;
+    margin-bottom: 2px;
+  }
+  .hunt-tile-name {
+    font-size: 9px;
   }
 }
 

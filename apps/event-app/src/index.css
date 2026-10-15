@@ -21,32 +21,31 @@ html, body, #root {
   user-select: none;
 }
 
-/* Modern Universal Custom Scrollbar */
+/* Modern High-Visibility Arcade Scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(17, 17, 17, 0.28) transparent;
+  scrollbar-color: #ffc83d rgba(0, 0, 0, 0.08);
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-full);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(17, 17, 17, 0.22);
+  background: #ffc83d;
   border-radius: var(--radius-full);
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  transition: background-color 0.2s ease;
+  border: 2px solid #111111;
+  transition: background-color 0.15s ease;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(17, 17, 17, 0.42);
-  background-clip: padding-box;
+  background: #ffb700;
 }
 
 button {

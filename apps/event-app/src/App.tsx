@@ -135,7 +135,9 @@ export const App: React.FC = () => {
       });
     }
 
-    return { r1, r2, r3 };
+    const r4 = [...DEFAULT_PROFILES].sort(() => 0.5 - Math.random());
+
+    return { r1, r2, r3, r4 };
   };
 
   const [sessionProfiles, setSessionProfiles] = useState(selectRandomSessionProfiles);
@@ -308,11 +310,11 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 9. ROUND 4: EMOJI HUNT (20 SECONDS TOTAL) */}
+      {/* 9. ROUND 4: EMOJI HUNT (18 SECONDS TOTAL, RANDOMIZED CATALOG) */}
       {gameState === "ROUND_4_HUNT" && (
         <HuntScreen
-          profiles={DEFAULT_PROFILES}
-          durationMs={20000}
+          profiles={sessionProfiles.r4 || DEFAULT_PROFILES}
+          durationMs={18000}
           mode={gameMode}
           faceTracking={faceTracking}
           stream={camera.stream}
@@ -326,7 +328,7 @@ export const App: React.FC = () => {
             }
             setRounds((prev) => [
               ...prev.filter((r) => r.roundId !== "r4"),
-              { roundId: "r4", score: p1Score, target: "🔍 HUNT", durationMs: 20000 },
+              { roundId: "r4", score: p1Score, target: "🔍 HUNT", durationMs: 18000 },
             ]);
             setGameState("RESULT");
           }}

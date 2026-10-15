@@ -135,7 +135,30 @@
   min-height: 0;
   height: 100%;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ffc83d rgba(0, 0, 0, 0.08);
   padding: 2px 4px 10px 2px;
+}
+
+.ga-left::-webkit-scrollbar {
+  width: 9px;
+  display: block;
+}
+
+.ga-left::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-full);
+}
+
+.ga-left::-webkit-scrollbar-thumb {
+  background: #ffc83d;
+  border-radius: var(--radius-full);
+  border: 2px solid #111111;
+}
+
+.ga-left::-webkit-scrollbar-thumb:hover {
+  background: #ffb700;
 }
 
 /* ---------- Cards ---------- */
